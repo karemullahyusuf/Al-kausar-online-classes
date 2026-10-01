@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al Kausar Online Classes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font (Padauk / Myanmar) -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap');
+        body {
+            font-family: 'Padauk', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Organization Heading -->
+        <div class="text-center mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-100" dir="rtl">
+            <p class="text-xl md:text-2xl font-bold text-slate-900">معهد التعليم عن بعد</p>
+            <p class="text-lg md:text-xl text-indigo-700 mt-1">الجامعة الكوثر الإسلامية</p>
+        </div>
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <i class="fa-solid fa-chalkboard-user text-indigo-600"></i> သင်တန်းဆရာများ စာရင်း
+                </h1>
+                <p class="text-slate-500 text-sm mt-1">ဆရာတစ်ဦးချင်းစီ၏ Zoom Meeting လင့်ခ်များနှင့် စီမံခန့်ခွဲရန်</p>
+            </div>
+            <button onclick="openModal()" class="mt-4 md:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium transition duration-200 flex items-center gap-2 shadow-sm shadow-indigo-200">
+                <i class="fa-solid fa-plus"></i> ဆရာအသစ် ထည့်မည်
+            </button>
+        </div>
+
+
+        <!-- Search, Filter, and Sort Controls -->
+        <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="lg:col-span-2 relative">
+                    <label for="searchInput" class="sr-only">ရှာဖွေရန်</label>
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="search" id="searchInput" placeholder="ဆရာအမည် သို့မဟုတ် ဘာသာရပ်ဖြင့် ရှာရန်..."
+                        class="w-full pl-11 pr-10 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                    <button id="clearSearch" type="button" aria-label="ရှာဖွေမှုဖျက်ရန်"
+                        class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div>
+                    <label for="subjectFilter" class="sr-only">ဘာသာရပ် စစ်ထုတ်ရန်</label>
+                    <select id="subjectFilter" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                        <option value="all">ဘာသာရပ်အားလုံး</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sortSelect" class="sr-only">စီစဉ်ပုံ</label>
+                    <select id="sortSelect" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                        <option value="name-asc">အမည် (က-အ)</option>
+                        <option value="name-desc">အမည် (အ-က)</option>
+                        <option value="newest">အသစ်ထည့်ထားသည့်အစဉ်</option>
+                        <option value="oldest">အရင်ထည့်ထားသည့်အစဉ်</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-3 mt-3 text-sm">
+                <p id="resultCount" class="text-slate-500"></p>
+                <button id="resetFilters" type="button" class="text-indigo-600 hover:text-indigo-700 font-medium hidden">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> စစ်ထုတ်မှုများ ပြန်ဖျက်မည်
+                </button>
+            </div>
+        </div>
+
+        <!-- Instructors Cards Grid -->
+        <div id="instructorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamic Cards will be rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200 mt-4">
+            <i class="fa-solid fa-user-slash text-4xl text-slate-300 mb-3"></i>
+            <p class="text-slate-500 font-medium">လောလောဆယ် ဆရာစာရင်း မရှိသေးပါ။</p>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Instructor -->
+    <div id="instructorModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl border border-slate-100 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-xl font-bold text-slate-900">ဆရာအချက်အလက် ထည့်သွင်းရန်</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="instructorForm" onsubmit="saveInstructor(event)">
+                <input type="hidden" id="instructorId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ဆရာအမည်</label>
+                        <input type="text" id="instructorName" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="ဥပမာ - Sya Zwaheer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">သင်ကြားမည့် ဘာသာရပ် / မှတ်စု</label>
+                        <input type="text" id="instructorSubject" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="ဥပမာ - အစ္စလာမ့်သာသနာ့စာပေ">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Zoom Meeting Link (သို့မဟုတ်) ID / Password</label>
+                        <input type="text" id="zoomLink" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="https://zoom.us/j/... သို့မဟုတ် ID/Password">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition">မလုပ်တော့ပါ</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition shadow-sm shadow-indigo-200">သိမ်းမည်</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Default Instructors Data with provided links
+        const defaultInstructors = [
+            { id: 1, name: 'Sya Zwaheer', subject: 'သင်တန်းဆရာ', zoom: 'https://us04web.zoom.us/j/9652962140?pwd=0pElSSzxI4D3fceAFP4iSqRMBvgFIX.1' },
+            { id: 2, name: 'Sya Bilal', subject: 'သင်တန်းဆရာ', zoom: 'https://us04web.zoom.us/j/9795210258?pwd=2aV7Pi7Xcf2MlD6vBMCJkCqjblLClc.1' },
+            { id: 3, name: 'Sya Karemullah Myit Nge', subject: 'သင်တန်းဆရာ (မြစ်ငယ်)', zoom: 'https://us05web.zoom.us/j/4355547172?pwd=h2hFdUKAKPWI3mExGMmc55ixaXBb2B.1' },
+            { id: 4, name: 'Sya Ali Kbu', subject: 'သင်တန်းဆရာ', zoom: 'https://us05web.zoom.us/j/6630245838?pwd=UW42Vwp4KVma8v8uSyLMAgLrji1RGC.1' },
+            { id: 5, name: 'Sya Ismatullah Mlm', subject: 'သင်တန်းဆရာ', zoom: 'https://us05web.zoom.us/j/3164364823?pwd=F7ukUm2Dvpu3lzfantBRrZ3KaUGMDe.1' },
+            { id: 6, name: 'Sya Naeemuddin', subject: 'သင်တန်းဆရာ', zoom: 'https://us05web.zoom.us/j/7785528717?pwd=z4886ErarfOfsF9tSbdKvYHZ41HnVv.1' },
+            { id: 7, name: 'Sya Nurul Hasan', subject: 'သင်တန်းဆရာ', zoom: 'https://us05web.zoom.us/j/5735477979?pwd=z38taFrgNX01cOZpe4SlIP6iObPPC7.1' },
+            { id: 8, name: 'Sya Naseem', subject: 'သင်တန်းဆရာ', zoom: 'https://us05web.zoom.us/j/85931337833?pwd=dM9nGc3suFl23e6wLZezti2oUgrlpB.1' },
+            { id: 9, name: 'Sya Naqi', subject: 'သင်တန်းဆရာ', zoom: 'https://us05web.zoom.us/j/83357787164?pwd=IU7IG4FAJItB3mKJSbVLySowtOY1mg.1' },
+            { id: 10, name: 'Sya AbdurRaheem Eng', subject: 'သင်တန်းဆရာ (English)', zoom: 'https://us04web.zoom.us/j/77309486150?pwd=3IIlirf0y6aqdc9TzXs9uNEhHfZA2M.1' },
+            { id: 11, name: 'Sya Kamaluddin', subject: 'သင်တန်းဆရာ', zoom: 'https://us05web.zoom.us/j/84622981673?pwd=a9btqjvnxlmh2UZ8J1VlHXv0Wwy9uc.1' },
+            { id: 12, name: 'Sya Ashraf', subject: 'ID: 938 928 2120 | Psw: ppppp', zoom: 'https://zoom.us' }
+        ];
+
+        let instructors = JSON.parse(localStorage.getItem('instructors')) || defaultInstructors;
+        let searchTerm = '';
+        let selectedSubject = 'all';
+        let sortOption = 'name-asc';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateSubjectFilter();
+            bindFilterControls();
+            renderInstructors();
+        });
+
+        function populateSubjectFilter() {
+            const subjectFilter = document.getElementById('subjectFilter');
+            const subjects = [...new Set(instructors.map(i => (i.subject || 'သင်တန်းဆရာ').trim()))]
+                .filter(Boolean)
+                .sort((a, b) => a.localeCompare(b, 'my'));
+
+            subjectFilter.innerHTML = '<option value="all">ဘာသာရပ်အားလုံး</option>';
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectFilter.appendChild(option);
+            });
+            subjectFilter.value = selectedSubject;
+        }
+
+        function bindFilterControls() {
+            const searchInput = document.getElementById('searchInput');
+            const subjectFilter = document.getElementById('subjectFilter');
+            const sortSelect = document.getElementById('sortSelect');
+            const clearSearch = document.getElementById('clearSearch');
+            const resetFilters = document.getElementById('resetFilters');
+
+            searchInput.addEventListener('input', event => {
+                searchTerm = event.target.value.trim().toLocaleLowerCase();
+                renderInstructors();
+            });
+            subjectFilter.addEventListener('change', event => {
+                selectedSubject = event.target.value;
+                renderInstructors();
+            });
+            sortSelect.addEventListener('change', event => {
+                sortOption = event.target.value;
+                renderInstructors();
+            });
+            clearSearch.addEventListener('click', () => {
+                searchInput.value = '';
+                searchTerm = '';
+                renderInstructors();
+                searchInput.focus();
+            });
+            resetFilters.addEventListener('click', () => {
+                searchInput.value = '';
+                subjectFilter.value = 'all';
+                sortSelect.value = 'name-asc';
+                searchTerm = '';
+                selectedSubject = 'all';
+                sortOption = 'name-asc';
+                renderInstructors();
+            });
+        }
+
+        function getVisibleInstructors() {
+            const filtered = instructors.filter(inst => {
+                const name = (inst.name || '').toLocaleLowerCase();
+                const subject = (inst.subject || 'သင်တန်းဆရာ').toLocaleLowerCase();
+                const matchesSearch = !searchTerm || name.includes(searchTerm) || subject.includes(searchTerm);
+                const matchesSubject = selectedSubject === 'all' || (inst.subject || 'သင်တန်းဆရာ') === selectedSubject;
+                return matchesSearch && matchesSubject;
+            });
+
+            return filtered.sort((a, b) => {
+                if (sortOption === 'name-desc') return (b.name || '').localeCompare(a.name || '', 'my');
+                if (sortOption === 'newest') return b.id - a.id;
+                if (sortOption === 'oldest') return a.id - b.id;
+                return (a.name || '').localeCompare(b.name || '', 'my');
+            });
+        }
+
+        function renderInstructors() {
+            const grid = document.getElementById('instructorGrid');
+            const emptyState = document.getElementById('emptyState');
+            const resultCount = document.getElementById('resultCount');
+            const clearSearch = document.getElementById('clearSearch');
+            const resetFilters = document.getElementById('resetFilters');
+            const visibleInstructors = getVisibleInstructors();
+            const hasActiveFilters = searchTerm || selectedSubject !== 'all' || sortOption !== 'name-asc';
+            grid.innerHTML = '';
+
+            resultCount.textContent = `${visibleInstructors.length} / ${instructors.length} ဦး ပြသထားသည်`;
+            clearSearch.classList.toggle('hidden', !searchTerm);
+            resetFilters.classList.toggle('hidden', !hasActiveFilters);
+
+            if (visibleInstructors.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.querySelector('p').textContent = instructors.length === 0
+                    ? 'လောလောဆယ် ဆရာစာရင်း မရှိသေးပါ။'
+                    : 'ရှာဖွေမှုနှင့် ကိုက်ညီသော ဆရာ မတွေ့ပါ။';
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            visibleInstructors.forEach(inst => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between';
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg">
+                                ${inst.name.charAt(4) || inst.name.charAt(0)}
+                            </div>
+                            <div class="flex gap-1">
+                                <button onclick="editInstructor(${inst.id})" class="text-slate-400 hover:text-indigo-600 p-2 rounded-lg hover:bg-indigo-50 transition" title="ပြင်ဆင်ရန်">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteInstructor(${inst.id})" class="text-slate-400 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition" title="ဖျက်ရန်">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900">${inst.name}</h3>
+                        <p class="text-slate-500 text-sm mb-4"><i class="fa-solid fa-book-open text-xs mr-1.5 text-indigo-500"></i> ${inst.subject || 'သင်တန်းဆရာ'}</p>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-slate-100 mt-2">
+                        <a href="${inst.zoom}" target="_blank" class="w-full bg-sky-500 hover:bg-sky-600 text-white py-2.5 px-4 rounded-xl font-medium text-sm transition duration-200 flex items-center justify-center gap-2 shadow-sm shadow-sky-100">
+                            <i class="fa-solid fa-video"></i> Zoom သို့ဝင်မည်
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openModal(id = null) {
+            const modal = document.getElementById('instructorModal');
+            const modalTitle = document.getElementById('modalTitle');
+            document.getElementById('instructorForm').reset();
+            document.getElementById('instructorId').value = '';
+
+            if (id) {
+                modalTitle.innerText = 'ဆရာအချက်အလက် ပြင်ဆင်ရန်';
+                const inst = instructors.find(i => i.id === id);
+                if (inst) {
+                    document.getElementById('instructorId').value = inst.id;
+                    document.getElementById('instructorName').value = inst.name;
+                    document.getElementById('instructorSubject').value = inst.subject;
+                    document.getElementById('zoomLink').value = inst.zoom;
+                }
+            } else {
+                modalTitle.innerText = 'ဆရာအသစ် ထည့်သွင်းရန်';
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('instructorModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function saveInstructor(event) {
+            event.preventDefault();
+            const id = document.getElementById('instructorId').value;
+            const name = document.getElementById('instructorName').value;
+            const subject = document.getElementById('instructorSubject').value;
+            const zoom = document.getElementById('zoomLink').value;
+
+            if (id) {
+                instructors = instructors.map(i => i.id == id ? { id: Number(id), name, subject, zoom } : i);
+            } else {
+                const newId = instructors.length > 0 ? Math.max(...instructors.map(i => i.id)) + 1 : 1;
+                instructors.push({ id: newId, name, subject, zoom });
+            }
+
+            localStorage.setItem('instructors', JSON.stringify(instructors));
+            populateSubjectFilter();
+            closeModal();
+            renderInstructors();
+        }
+
+        function editInstructor(id) {
+            openModal(id);
+        }
+
+        function deleteInstructor(id) {
+            if (confirm('ဤဆရာ၏ အချက်အလက်ကို ဖျက်ရန် သေချာပါသလား?')) {
+                instructors = instructors.filter(i => i.id !== id);
+                localStorage.setItem('instructors', JSON.stringify(instructors));
+                populateSubjectFilter();
+                renderInstructors();
+            }
+        }
+    </script>
+</body>
+</html>
