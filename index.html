@@ -2,7 +2,7 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Zoom Class Launcher</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -10,9 +10,8 @@
     <!-- Firebase SDK Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Firebase Config Setup
         const firebaseConfig = {
             apiKey: "AIzaSyDrNrQj8RzKy7UHNifSY7jpeSw1qtSeDOI",
             authDomain: "jki-zoom-links.firebaseapp.com",
@@ -24,12 +23,12 @@
             measurementId: "G-S3JLLDYRWY"
         };
 
-        // Firebase Initialize
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const meetingsRef = ref(db, 'meetings');
 
-        // မူရင်း ဆရာ (၆) ယောက်၏ Links များ (Database မှာ ဒေတာ မရှိသေးရင် အလိုအလျောက် ထည့်ပေးမည့် စနစ်)
+        let meetingsData = {};
+
         const initialMeetings = [
             { name: "ဆရာဘေလားလ်", link: "https://us04web.zoom.us/j/9795210258?pwd=2aV7Pi7Xcf2MlD6vBMCJkCqjblLClc.1", idNum: "979 521 0258" },
             { name: "ဆရာကရီမွလ္လာဟ် (မြစ်ငယ်)", link: "https://us05web.zoom.us/j/4355547172?pwd=h2hFdUKAKPWI3mExGMmc55ixaXBb2B.1", idNum: "435 554 7172" },
@@ -39,13 +38,12 @@
             { name: "ဆရာနူရွလ်ဟစံ", link: "https://us05web.zoom.us/j/5735477979?pwd=z38taFrgNX01cOZpe4SlIP6iObPPC7.1", idNum: "573 547 7979" }
         ];
 
-        // Firebase မှ ဒေတာများကို တိုက်ရိုက် ဖတ်ယူခြင်း (Realtime Sync)
         onValue(meetingsRef, (snapshot) => {
             const data = snapshot.val();
+            meetingsData = data || {};
             const container = document.getElementById('meetingContainer');
             container.innerHTML = '';
 
-            // အကယ်၍ Database ထဲတွင် မည်သည့်ဒေတာမျှ မရှိသေးပါက မူရင်း Links ၆ ခုကို ထည့်သွင်းပေးမည်
             if (!data) {
                 initialMeetings.forEach(m => push(meetingsRef, m));
                 return;
@@ -54,18 +52,21 @@
             Object.keys(data).forEach(key => {
                 const item = data[key];
                 const card = document.createElement('div');
-                card.className = "flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-xl gap-3 shadow-sm hover:shadow-md transition-all";
+                card.className = "flex items-center justify-between p-3 md:p-4 bg-white border border-gray-200 rounded-xl gap-2 shadow-sm hover:shadow-md transition-all";
                 card.innerHTML = `
-                    <div class="text-center sm:text-left w-full sm:w-auto">
-                        <h3 class="font-bold text-gray-800 text-base md:text-lg">${item.name}</h3>
-                        <p class="text-xs text-gray-500 mt-0.5">Meeting ID: ${item.idNum || 'N/A'}</p>
+                    <div class="text-left flex-1 min-w-0 pr-2">
+                        <h3 class="font-bold text-gray-800 text-sm md:text-base truncate">${item.name}</h3>
+                        <p class="text-[11px] text-gray-400">ID: ${item.idNum || 'N/A'}</p>
                     </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <a href="${item.link}" target="_blank" class="flex-1 sm:flex-none px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-center text-sm flex items-center justify-center gap-2 transition-colors">
-                            <i class="fa-solid fa-video"></i> Join Class
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <a href="${item.link}" target="_blank" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-xs md:text-sm flex items-center gap-1.5 transition-colors">
+                            <i class="fa-solid fa-video"></i> Join
                         </a>
-                        <button onclick="deleteMeeting('${key}')" title="ဖျက်ရန်" class="px-3 py-2.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-xl transition-colors">
-                            <i class="fa-solid fa-trash-can"></i>
+                        <button onclick="openEditModal('${key}')" title="ပြင်ရန်" class="p-2 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-lg transition-colors">
+                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                        </button>
+                        <button onclick="deleteMeeting('${key}')" title="ဖျက်ရန်" class="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg transition-colors">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
                         </button>
                     </div>
                 `;
@@ -73,8 +74,9 @@
             });
         });
 
-        // Meeting အသစ်ထည့်သည့် Function
-        window.addNewMeeting = function() {
+        // Save / Update Meeting Function
+        window.saveMeeting = function() {
+            const editId = document.getElementById('editKey').value;
             const name = document.getElementById('teacherName').value.trim();
             const link = document.getElementById('zoomLink').value.trim();
             const idNum = document.getElementById('meetingId').value.trim();
@@ -84,17 +86,43 @@
                 return;
             }
 
-            push(meetingsRef, { name, link, idNum })
-                .then(() => {
-                    document.getElementById('teacherName').value = '';
-                    document.getElementById('zoomLink').value = '';
-                    document.getElementById('meetingId').value = '';
-                    toggleModal(false);
-                })
-                .catch(err => alert("Error: " + err.message));
+            if (editId) {
+                // Update Existing Data
+                update(ref(db, `meetings/${editId}`), { name, link, idNum })
+                    .then(() => toggleModal(false))
+                    .catch(err => alert("Error: " + err.message));
+            } else {
+                // Add New Data
+                push(meetingsRef, { name, link, idNum })
+                    .then(() => toggleModal(false))
+                    .catch(err => alert("Error: " + err.message));
+            }
         };
 
-        // Meeting ဖျက်သည့် Function
+        // Open Modal for Editing
+        window.openEditModal = function(key) {
+            const item = meetingsData[key];
+            if (!item) return;
+
+            document.getElementById('modalTitle').innerText = "Class အချက်အလက် ပြင်ရန်";
+            document.getElementById('editKey').value = key;
+            document.getElementById('teacherName').value = item.name || '';
+            document.getElementById('zoomLink').value = item.link || '';
+            document.getElementById('meetingId').value = item.idNum || '';
+            toggleModal(true);
+        };
+
+        // Open Modal for Adding New
+        window.openAddModal = function() {
+            document.getElementById('modalTitle').innerText = "Class အသစ်ထည့်ရန်";
+            document.getElementById('editKey').value = '';
+            document.getElementById('teacherName').value = '';
+            document.getElementById('zoomLink').value = '';
+            document.getElementById('meetingId').value = '';
+            toggleModal(true);
+        };
+
+        // Delete Meeting
         window.deleteMeeting = function(key) {
             if (confirm("ဒီ Class ကို ဖျက်ရန် သေချာပါသလား။")) {
                 remove(ref(db, `meetings/${key}`));
@@ -102,51 +130,54 @@
         };
     </script>
 </head>
-<body class="bg-gray-100 min-h-screen p-3 md:p-8">
+<body class="bg-white min-h-screen p-2 md:p-4">
 
-    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-5 md:p-6">
+    <div class="w-full max-w-2xl mx-auto">
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+        <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-100">
             <div>
-                <h1 class="text-2xl font-bold text-blue-600 flex items-center gap-2">
-                    <i class="fa-solid fa-graduation-cap"></i> Al-Kausar Classes
+                <h1 class="text-lg md:text-xl font-bold text-blue-600 flex items-center gap-1.5">
+                    <i class="fa-solid fa-graduation-cap"></i> JKI Classes
                 </h1>
-                <p class="text-xs text-gray-500 mt-1">Zoom Meeting Quick Launcher</p>
+                <p class="text-[11px] text-gray-400">Zoom Quick Launcher</p>
             </div>
-            <button onclick="toggleModal(true)" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 shadow-sm transition-colors">
+            <button onclick="openAddModal()" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm transition-colors">
                 <i class="fa-solid fa-plus"></i> အသစ်ထည့်ရန်
             </button>
         </div>
 
         <!-- Meeting List -->
-        <div id="meetingContainer" class="space-y-3">
-            <div class="text-center py-8 text-gray-400 text-sm">
-                <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Data များကို ရယူနေပါသည်...
+        <div id="meetingContainer" class="space-y-2">
+            <div class="text-center py-6 text-gray-400 text-xs">
+                <i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Data များ ရယူနေပါသည်...
             </div>
         </div>
     </div>
 
-    <!-- Modal Form (အသစ်ထည့်ရန် Popup Box) -->
+    <!-- Modal Form (Add & Edit Box) -->
     <div id="addModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">Class အသစ်ထည့်ရန်</h2>
-            <div class="space-y-3">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-xl">
+            <h2 id="modalTitle" class="text-lg font-bold mb-3 text-gray-800">Class အသစ်ထည့်ရန်</h2>
+            <input type="hidden" id="editKey">
+            
+            <div class="space-y-2.5">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">ဆရာအမည်</label>
-                    <input type="text" id="teacherName" placeholder="ဥပမာ - ဆရာဘေလားလ်" class="w-full p-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="teacherName" placeholder="ဥပမာ - ဆရာဘေလားလ်" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Zoom Link</label>
-                    <input type="text" id="zoomLink" placeholder="https://us05web.zoom.us/j/..." class="w-full p-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="zoomLink" placeholder="https://us05web.zoom.us/j/..." class="w-full p-2.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Meeting ID (မထည့်လည်းရသည်)</label>
-                    <input type="text" id="meetingId" placeholder="123 456 7890" class="w-full p-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Meeting ID (Optional)</label>
+                    <input type="text" id="meetingId" placeholder="123 456 7890" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button onclick="toggleModal(false)" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-xl text-sm">မလုပ်တော့ပါ</button>
-                <button onclick="addNewMeeting()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors">သိမ်းဆည်းမည်</button>
+            
+            <div class="flex justify-end gap-2 mt-5">
+                <button onclick="toggleModal(false)" class="px-3.5 py-2 text-gray-500 hover:bg-gray-100 rounded-lg text-xs">မလုပ်တော့ပါ</button>
+                <button onclick="saveMeeting()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors">သိမ်းဆည်းမည်</button>
             </div>
         </div>
     </div>
