@@ -354,24 +354,28 @@
         // Announcement Edit Logic
         window.openAnnouncementModal = function() {
             const currentText = document.getElementById('announcementText').innerText;
-            document.getElementById('announcementInput').value = currentText;
+            document.getElementById('announcementInput').value = (currentText.includes('ကြေညာချက် ရယူနေပါသည်')) ? '' : currentText;
             document.getElementById('announcementModal').classList.remove('hidden');
         };
 
         window.saveAnnouncement = function() {
-            const text = document.getElementById('announcementInput').value.trim();
+            const textInput = document.getElementById('announcementInput');
+            const text = textInput ? textInput.value.trim() : '';
+
             if (!text) {
-                alert("ကြေညာချက် စာသား ထည့်ပါ။");
+                alert("ကျေးဇူးပြု၍ ကြေညာချက် စာသား ရိုက်ထည့်ပါ။");
                 return;
             }
 
-            const pwd = prompt("ပြင်ဆင်ရန် Admin Password ရိုက်ထည့်ပါ:");
+            const pwd = prompt("သိမ်းဆည်းရန် Admin Password ရိုက်ထည့်ပါ:");
             if (pwd === "55155") {
-                set(announcementRef, { text })
-                    .then(() => document.getElementById('announcementModal').classList.add('hidden'))
+                set(announcementRef, { text: text })
+                    .then(() => {
+                        document.getElementById('announcementModal').classList.add('hidden');
+                    })
                     .catch(err => alert("Error: " + err.message));
             } else if (pwd !== null) {
-                alert("Password မမှန်ကန်ပါ။");
+                alert("Password မမှန်ကန်ပါ။ ပြင်ဆင်ခွင့်မရှိပါ။");
             }
         };
 
@@ -476,7 +480,7 @@
 
             const pwd = prompt("သိမ်းဆည်းရန် Admin Password ရိုက်ထည့်ပါ:");
             if (pwd !== "55155") {
-                if (pwd !== null) alert("Password မမှန်ကန်ပါ။");
+                if (pwd !== null) alert("Password မမှန်ကန်ပါ။ ပြင်ဆင်ခွင့်မရှိပါ။");
                 return;
             }
 
@@ -529,7 +533,7 @@
                     remove(ref(db, `meetings/${key}`));
                 }
             } else if (pwd !== null) {
-                alert("Password မမှန်ကန်ပါ။");
+                alert("Password မမှန်ကန်ပါ။ ပြင်ဆင်ခွင့်မရှိပါ။");
             }
         };
     </script>
