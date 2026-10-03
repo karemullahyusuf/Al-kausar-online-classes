@@ -106,6 +106,7 @@
 
         let meetingsData = {};
         window.activeViewDays = {};
+        window.expandedCards = {};
         window.activeModalDay = 'sat';
 
         const daysList = [
@@ -132,7 +133,7 @@
                 }
             },
             "sample_2": {
-                name: "ဆရာ လှ",
+                name: "ဆရာမ ဒေါ်ခိုင်ဇာ",
                 idNum: "950 1234 5678",
                 phone: "09987654321",
                 link: "https://zoom.us/j/95012345678",
@@ -146,7 +147,6 @@
 
         onValue(meetingsRef, (snapshot) => {
             const data = snapshot.val();
-            // Database ထဲမှာ ဒေတာ မရှိသေးလျှင် နမူနာ ဒေတာများကို ပြသပေးမည်
             if (!data || Object.keys(data).length === 0) {
                 meetingsData = sampleMeetings;
             } else {
@@ -154,6 +154,11 @@
             }
             renderMeetings();
         });
+
+        window.toggleAccordion = function(key) {
+            window.expandedCards[key] = !window.expandedCards[key];
+            renderMeetings();
+        };
 
         window.renderMeetings = function() {
             const container = document.getElementById('meetingContainer');
@@ -197,13 +202,14 @@
                     window.activeViewDays[key] = 'sat';
                 }
                 const currentDay = window.activeViewDays[key];
+                const isExpanded = searchKeyword ? true : !!window.expandedCards[key];
 
                 let dayTabsHTML = '';
                 daysList.forEach(d => {
                     const hasData = item.weeklySchedule && item.weeklySchedule[d.id] && Object.keys(item.weeklySchedule[d.id]).length > 0;
                     const isActive = currentDay === d.id;
 
-                    let btnStyle = "px-2.5 py-1.5 text-[11px] rounded-lg transition-all shrink-0 font-semibold border ";
+                    let btnStyle = "px-2.5 py-1 text-[11px] rounded-lg transition-all shrink-0 font-semibold border ";
                     if (isActive) {
                         btnStyle += "bg-islamic-600 text-white border-islamic-600 shadow-sm";
                     } else if (hasData) {
@@ -212,7 +218,7 @@
                         btnStyle += "bg-white text-gray-400 border-gray-200 hover:bg-gray-50";
                     }
 
-                    dayTabsHTML += `<button onclick="changeCardDay('${key}', '${d.id}')" class="${btnStyle}">${d.label}</button>`;
+                    dayTabsHTML += `<button onclick="event.stopPropagation(); changeCardDay('${key}', '${d.id}')" class="${btnStyle}">${d.label}</button>`;
                 });
 
                 let periodsHTML = '';
@@ -231,53 +237,60 @@
                         }
                     }
                     if (periodCards.length > 0) {
-                        periodsHTML = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-2.5">${periodCards.join('')}</div>`;
+                        periodsHTML = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-2">${periodCards.join('')}</div>`;
                     } else {
-                        periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-3 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2.5">ဤနေ့အတွက် သင်ကြားမည့် အတန်း မရှိပါ</div>`;
+                        periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် သင်ကြားမည့် အတန်း မရှိပါ</div>`;
                     }
                 } else {
-                    periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-3 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2.5">ဤနေ့အတွက် သင်ကြားမည့် အတန်း မရှိပါ</div>`;
+                    periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် သင်ကြားမည့် အတန်း မရှိပါ</div>`;
                 }
 
                 const callBtn = item.phone 
-                    ? `<a href="tel:${item.phone}" title="ဖုန်းခေါ်ရန်" class="px-3 py-2 bg-gold-50 hover:bg-gold-100 text-gold-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border border-gold-200">
-                        <i class="fa-solid fa-phone"></i> <span class="hidden sm:inline">Call</span>
+                    ? `<a href="tel:${item.phone}" onclick="event.stopPropagation();" title="ဖုန်းခေါ်ရန်" class="p-2 bg-gold-50 hover:bg-gold-100 text-gold-700 rounded-xl text-xs font-semibold transition-all border border-gold-200">
+                        <i class="fa-solid fa-phone"></i>
                        </a>`
                     : '';
 
                 const card = document.createElement('div');
-                card.className = "bg-white/95 backdrop-blur-sm border border-islamic-100 rounded-2xl p-4 shadow-sm hover:shadow-lg hover:border-gold-200 transition-all duration-300 space-y-3 relative overflow-hidden";
+                card.className = "bg-white/95 backdrop-blur-sm border border-islamic-100 rounded-2xl shadow-sm hover:border-gold-300 transition-all duration-200 overflow-hidden";
                 
                 card.innerHTML = `
-                    <div class="absolute top-0 right-0 w-20 h-20 opacity-[0.04] pointer-events-none">
-                        <svg viewBox="0 0 100 100" fill="none" stroke="#1e5a3e" stroke-width="1.5">
-                            <path d="M50 5 L60 20 L75 20 L65 35 L75 50 L60 50 L50 65 L40 50 L25 50 L35 35 L25 20 L40 20 Z"/>
-                            <circle cx="50" cy="50" r="40"/>
-                        </svg>
-                    </div>
-
-                    <div class="flex items-center justify-between gap-2 relative">
-                        <div class="text-left flex-1 min-w-0">
-                            <h3 class="font-bold text-islamic-900 text-base truncate">${item.name}</h3>
-                            <p class="text-xs text-islamic-500 mt-0.5 truncate">
-                                <i class="fa-regular fa-id-badge text-gold-500 mr-1"></i>${item.idNum || 'N/A'} ${item.phone ? ' • ' + item.phone : ''}
-                            </p>
+                    <div onclick="toggleAccordion('${key}')" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-islamic-50/50 transition-colors">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <div class="w-10 h-10 rounded-xl bg-islamic-100 text-islamic-700 flex items-center justify-center font-bold text-sm shrink-0 border border-islamic-200">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <h3 class="font-bold text-islamic-900 text-sm sm:text-base truncate">${item.name}</h3>
+                                <p class="text-[11px] text-islamic-500 truncate">
+                                    <i class="fa-regular fa-id-badge text-gold-500 mr-1"></i>${item.idNum || 'N/A'} ${item.phone ? ' • ' + item.phone : ''}
+                                </p>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
+
+                        <div class="flex items-center gap-2 shrink-0 ml-2">
                             ${callBtn}
-                            <a href="${item.link}" target="_blank" class="px-4 py-2 bg-gradient-to-br from-islamic-500 to-islamic-700 hover:from-islamic-600 hover:to-islamic-800 text-white font-semibold rounded-xl text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-md btn-glow">
+                            <a href="${item.link}" target="_blank" onclick="event.stopPropagation();" class="px-3 py-1.5 bg-gradient-to-br from-islamic-500 to-islamic-700 hover:from-islamic-600 hover:to-islamic-800 text-white font-semibold rounded-xl text-xs flex items-center gap-1 transition-all shadow-md btn-glow">
                                 <i class="fa-solid fa-video"></i> Join
                             </a>
-                            <button onclick="openEditModal('${key}')" title="ပြင်ရန်" class="p-2 bg-gold-50 hover:bg-gold-100 text-gold-600 rounded-xl transition-all border border-gold-200">
-                                <i class="fa-solid fa-pen-to-square text-xs"></i>
-                            </button>
-                            <button onclick="deleteMeeting('${key}')" title="ဖျက်ရန်" class="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl transition-all border border-red-100">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
+                            <div class="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 text-xs transition-transform ${isExpanded ? 'rotate-180 text-islamic-600 bg-islamic-100' : ''}">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="pt-2.5 border-t border-islamic-100/70">
+                    <div class="${isExpanded ? 'block' : 'hidden'} px-3.5 pb-3.5 pt-1 border-t border-islamic-100/70 bg-islamic-50/30">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-islamic-600 uppercase tracking-wider">အချိန်ဇယား ကြည့်ရန်</span>
+                            <div class="flex gap-1">
+                                <button onclick="event.stopPropagation(); openEditModal('${key}')" title="ပြင်ရန်" class="px-2 py-1 bg-gold-50 hover:bg-gold-100 text-gold-700 rounded-lg text-[11px] transition-all border border-gold-200 flex items-center gap-1">
+                                    <i class="fa-solid fa-pen-to-square"></i> ပြင်ရန်
+                                </button>
+                                <button onclick="event.stopPropagation(); deleteMeeting('${key}')" title="ဖျက်ရန်" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-[11px] transition-all border border-red-100 flex items-center gap-1">
+                                    <i class="fa-solid fa-trash-can"></i> ဖျက်ရန်
+                                </button>
+                            </div>
+                        </div>
                         <div class="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
                             ${dayTabsHTML}
                         </div>
@@ -355,7 +368,6 @@
                 return;
             }
 
-            // Admin Password စစ်ဆေးခြင်း
             const pwd = prompt("သိမ်းဆည်းရန် Admin Password ရိုက်ထည့်ပါ:");
             if (pwd !== "55155") {
                 if (pwd !== null) alert("Password မမှန်ကန်ပါ။");
@@ -405,7 +417,6 @@
         };
 
         window.deleteMeeting = function(key) {
-            // Admin Password စစ်ဆေးခြင်း
             const pwd = prompt("ဖျက်ရန် Admin Password ရိုက်ထည့်ပါ:");
             if (pwd === "55155") {
                 if (confirm("ဒီအတန်းကို ဖျက်ရန် သေချာပါသလား။")) {
@@ -422,11 +433,6 @@
     <div class="w-full max-w-2xl mx-auto">
         <!-- Header -->
         <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-4 mb-4 shadow-sm border border-islamic-100 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-24 h-24 opacity-[0.06] pointer-events-none">
-                <svg viewBox="0 0 100 100" fill="none" stroke="#1e5a3e" stroke-width="1.5">
-                    <path d="M50 10 L58 25 L75 25 L62 38 L70 55 L50 45 L30 55 L38 38 L25 25 L42 25 Z"/>
-                </svg>
-            </div>
             <div class="flex items-center justify-between gap-2 relative">
                 <div>
                     <h1 class="text-xl md:text-2xl font-bold text-islamic-800 flex items-center gap-2 tracking-tight">
@@ -446,23 +452,32 @@
             </div>
         </div>
 
-        <!-- Ornamental Divider -->
         <div class="ornament-divider mb-4"></div>
 
         <!-- Search Bar -->
-        <div class="relative mb-4">
+        <div class="relative mb-3">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-islamic-400 text-xs"></i>
             <input type="text" id="searchInput" oninput="renderMeetings()" placeholder="ဆရာအမည်၊ အတန်း သို့မဟုတ် ID ဖြင့် ရှာရန်..." class="w-full pl-9 pr-4 py-2.5 bg-white/95 backdrop-blur-sm border border-islamic-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-islamic-500/40 focus:border-islamic-400 shadow-sm transition-all">
         </div>
 
-        <!-- Meeting List -->
-        <div id="meetingContainer" class="space-y-3">
+        <!-- Section Title & Instruction Header -->
+        <div class="flex items-center justify-between px-1 mb-2">
+            <span class="text-xs font-bold text-islamic-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-users-rectangle text-gold-500"></i>
+                ဆရာ/ဆရာမ အမည်များ
+            </span>
+            <span class="text-[10px] text-islamic-500 bg-islamic-100/60 px-2 py-0.5 rounded-full border border-islamic-200/50">
+                <i class="fa-solid fa-hand-pointer text-gold-600 mr-1"></i>နှိပ်၍ အချိန်ဇယား ကြည့်ပါ
+            </span>
+        </div>
+
+        <!-- Meeting List (Accordion Style) -->
+        <div id="meetingContainer" class="space-y-2.5">
             <div class="text-center py-10 text-islamic-500 text-xs">
                 <i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Data များ ရယူနေပါသည်...
             </div>
         </div>
 
-        <!-- Footer Ornament -->
         <div class="ornament-divider mt-8 mb-3"></div>
         <p class="text-center text-[10px] text-islamic-400 font-medium tracking-widest">﷽</p>
     </div>
