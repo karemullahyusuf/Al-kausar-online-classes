@@ -30,12 +30,12 @@
         let meetingsData = {};
 
         const initialMeetings = [
-            { name: "ဆရာဘေလားလ်", link: "https://us04web.zoom.us/j/9795210258?pwd=2aV7Pi7Xcf2MlD6vBMCJkCqjblLClc.1", idNum: "979 521 0258" },
-            { name: "ဆရာကရီမွလ္လာဟ် (မြစ်ငယ်)", link: "https://us05web.zoom.us/j/4355547172?pwd=h2hFdUKAKPWI3mExGMmc55ixaXBb2B.1", idNum: "435 554 7172" },
-            { name: "ဆရာအလီ (ကန့်ဘလူ)", link: "https://us05web.zoom.us/j/6630245838?pwd=UW42Vwp4KVma8v8uSyLMAgLrji1RGC.1", idNum: "663 024 5838" },
-            { name: "ဆရာအစ်မသွလ္လာဟ်", link: "https://us05web.zoom.us/j/3164364823?pwd=F7ukUm2Dvpu3lzfantBRrZ3KaUGMDe.1", idNum: "316 436 4823" },
-            { name: "ဆရာနအီမွဒ္ဒီးန်", link: "https://us05web.zoom.us/j/7785528717?pwd=z4886ErarfOfsF9tSbdKvYHZ41HnVv.1", idNum: "778 552 8717" },
-            { name: "ဆရာနူရွလ်ဟစံ", link: "https://us05web.zoom.us/j/5735477979?pwd=z38taFrgNX01cOZpe4SlIP6iObPPC7.1", idNum: "573 547 7979" }
+            { name: "ဆရာဘေလားလ်", link: "https://us04web.zoom.us/j/9795210258?pwd=2aV7Pi7Xcf2MlD6vBMCJkCqjblLClc.1", idNum: "979 521 0258", phone: "" },
+            { name: "ဆရာကရီမွလ္လာဟ် (မြစ်ငယ်)", link: "https://us05web.zoom.us/j/4355547172?pwd=h2hFdUKAKPWI3mExGMmc55ixaXBb2B.1", idNum: "435 554 7172", phone: "" },
+            { name: "ဆရာအလီ (ကန့်ဘလူ)", link: "https://us05web.zoom.us/j/6630245838?pwd=UW42Vwp4KVma8v8uSyLMAgLrji1RGC.1", idNum: "663 024 5838", phone: "" },
+            { name: "ဆရာအစ်မသွလ္လာဟ်", link: "https://us05web.zoom.us/j/3164364823?pwd=F7ukUm2Dvpu3lzfantBRrZ3KaUGMDe.1", idNum: "316 436 4823", phone: "" },
+            { name: "ဆရာနအီမွဒ္ဒီးန်", link: "https://us05web.zoom.us/j/7785528717?pwd=z4886ErarfOfsF9tSbdKvYHZ41HnVv.1", idNum: "778 552 8717", phone: "" },
+            { name: "ဆရာနူရွလ်ဟစံ", link: "https://us05web.zoom.us/j/5735477979?pwd=z38taFrgNX01cOZpe4SlIP6iObPPC7.1", idNum: "573 547 7979", phone: "" }
         ];
 
         onValue(meetingsRef, (snapshot) => {
@@ -53,12 +53,21 @@
                 const item = data[key];
                 const card = document.createElement('div');
                 card.className = "flex items-center justify-between p-3 md:p-4 bg-white border border-gray-200 rounded-xl gap-2 shadow-sm hover:shadow-md transition-all";
+                
+                // Call Button HTML
+                const callBtn = item.phone 
+                    ? `<a href="tel:${item.phone}" title="ဖုန်းခေါ်ရန်" class="px-2.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors">
+                        <i class="fa-solid fa-phone"></i> <span class="hidden sm:inline">Call</span>
+                       </a>`
+                    : '';
+
                 card.innerHTML = `
                     <div class="text-left flex-1 min-w-0 pr-2">
                         <h3 class="font-bold text-gray-800 text-sm md:text-base truncate">${item.name}</h3>
-                        <p class="text-[11px] text-gray-400">ID: ${item.idNum || 'N/A'}</p>
+                        <p class="text-[11px] text-gray-400">ID: ${item.idNum || 'N/A'} ${item.phone ? ' • ' + item.phone : ''}</p>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
+                        ${callBtn}
                         <a href="${item.link}" target="_blank" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-xs md:text-sm flex items-center gap-1.5 transition-colors">
                             <i class="fa-solid fa-video"></i> Join
                         </a>
@@ -80,6 +89,7 @@
             const name = document.getElementById('teacherName').value.trim();
             const link = document.getElementById('zoomLink').value.trim();
             const idNum = document.getElementById('meetingId').value.trim();
+            const phone = document.getElementById('teacherPhone').value.trim();
 
             if (!name || !link) {
                 alert("ကျေးဇူးပြု၍ ဆရာအမည်နှင့် Zoom Link ကို ထည့်သွင်းပါ။");
@@ -88,12 +98,12 @@
 
             if (editId) {
                 // Update Existing Data
-                update(ref(db, `meetings/${editId}`), { name, link, idNum })
+                update(ref(db, `meetings/${editId}`), { name, link, idNum, phone })
                     .then(() => toggleModal(false))
                     .catch(err => alert("Error: " + err.message));
             } else {
                 // Add New Data
-                push(meetingsRef, { name, link, idNum })
+                push(meetingsRef, { name, link, idNum, phone })
                     .then(() => toggleModal(false))
                     .catch(err => alert("Error: " + err.message));
             }
@@ -109,6 +119,7 @@
             document.getElementById('teacherName').value = item.name || '';
             document.getElementById('zoomLink').value = item.link || '';
             document.getElementById('meetingId').value = item.idNum || '';
+            document.getElementById('teacherPhone').value = item.phone || '';
             toggleModal(true);
         };
 
@@ -119,6 +130,7 @@
             document.getElementById('teacherName').value = '';
             document.getElementById('zoomLink').value = '';
             document.getElementById('meetingId').value = '';
+            document.getElementById('teacherPhone').value = '';
             toggleModal(true);
         };
 
@@ -137,7 +149,7 @@
         <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-100">
             <div>
                 <h1 class="text-lg md:text-xl font-bold text-blue-600 flex items-center gap-1.5">
-                    <i class="fa-solid fa-graduation-cap"></i> JKI Classes
+                    <i class="fa-solid fa-graduation-cap"></i> Al-Kausar Classes
                 </h1>
                 <p class="text-[11px] text-gray-400">Zoom Quick Launcher</p>
             </div>
@@ -172,6 +184,10 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Meeting ID (Optional)</label>
                     <input type="text" id="meetingId" placeholder="123 456 7890" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">ဖုန်းနံပါတ် (Optional)</label>
+                    <input type="text" id="teacherPhone" placeholder="09xxxxxxxxx" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
             
