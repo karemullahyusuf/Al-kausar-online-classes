@@ -17,11 +17,11 @@
                     },
                     colors: {
                         'islamic': {
-                            50: '#fff5f6', 100: '#feecee', 200: '#f9d4d6', 300: '#f0a9ad', 400: '#e07b82',
-                            500: '#b33b3f', 600: '#8b2a2d', 700: '#6a2022', 800: '#501618', 900: '#3a0f11', 950: '#1f0808',
+                            50: '#f0f9f4', 100: '#dcf0e4', 200: '#bce0cb', 300: '#8ec9a8', 400: '#5aab80',
+                            500: '#368d5f', 600: '#25714b', 700: '#1e5a3e', 800: '#1a4833', 900: '#163b2b', 950: '#0b2017',
                         },
                         'gold': {
-                            50: '#fef9ef', 100: '#fbf0d6', 200: '#f6e0af', 300: '#f0c775', 400: '#e6ac32',
+                            50: '#fdf9ed', 100: '#f9efc9', 200: '#f3dd8f', 300: '#ecc555', 400: '#e6b02e',
                             500: '#d4941a', 600: '#b87214', 700: '#935214', 800: '#7a4218', 900: '#683818',
                         }
                     }
@@ -31,23 +31,15 @@
     </script>
 
     <style>
-        :root {
-            --page-text: #ffffff;
-            --card-text: #1f0f10;
-            --card-bg: rgba(255,255,255,0.95);
-        }
-
         body {
             font-family: 'Noto Sans Myanmar', 'Padauk', sans-serif;
-            background-color: #3a0f11;
+            background-color: #f0f9f4;
             background-image: 
-                radial-gradient(circle at 15% 20%, rgba(179,59,63,0.12) 0%, transparent 30%),
-                radial-gradient(circle at 80% 75%, rgba(212,148,26,0.06) 0%, transparent 30%),
-                linear-gradient(180deg, rgba(58,15,17,0.06), rgba(28,10,12,0.12));
+                radial-gradient(circle at 25% 25%, rgba(54, 141, 95, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(212, 148, 26, 0.05) 0%, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23368d5f' stroke-opacity='0.06' stroke-width='1' %3E%3Cpath d='M10 0 L0 10 M0 0 L10 10 M20 0 L10 10 M10 0 L20 10 M30 0 L20 10 M20 0 L30 10 M40 0 L30 10 M30 0 L40 10 M50 0 L40 10 M40 0 L50 10 M60 0 L50 10 M50 0 L60 10 M0 20 L10 30 M10 20 L20 30 M20 20 L30 30 M30 20 L40 30 M40 20 L50 30 M50 20 L60 30 M0 40 L10 50 M10 40 L20 50 M20 40 L30 50 M30 40 L40 50 M40 40 L50 50 M50 40 L60 50 M0 60 L10 70 M10 60 L20 70 M20 60 L30 70 M30 60 L40 70 M40 60 L50 70 M50 60 L60 70'/%3E%3C/g%3E%3C/svg%3E");
             background-attachment: fixed;
-            color: var(--page-text);
         }
-
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -63,34 +55,13 @@
             top: 50%;
             transform: translate(-50%, -50%);
             color: #d4941a;
-            background: #3a0f11;
+            background: #f0f9f4;
             padding: 0 8px;
             font-size: 10px;
         }
 
-        .btn-glow { box-shadow: 0 6px 22px rgba(212,148,26,0.20); }
-        .btn-glow:hover { box-shadow: 0 10px 34px rgba(212,148,26,0.28); }
-
-        .card-warm {
-            background-color: var(--card-bg);
-            color: var(--card-text) !important;
-        }
-
-        .card-warm .text-white,
-        .card-warm .text-islamic-50,
-        .card-warm .text-islamic-100,
-        .card-warm .text-islamic-200,
-        .card-warm .text-islamic-900,
-        .card-warm .text-islamic-800,
-        .card-warm .text-islamic-700,
-        .card-warm .text-islamic-600,
-        .card-warm .text-islamic-500 {
-            color: var(--card-text) !important;
-        }
-
-        .text-islamic-900, .text-islamic-800, .text-islamic-700, .text-islamic-600, .text-islamic-500 {
-            color: var(--page-text) !important;
-        }
+        .btn-glow { box-shadow: 0 4px 14px rgba(54, 141, 95, 0.25); }
+        .btn-glow:hover { box-shadow: 0 6px 20px rgba(54, 141, 95, 0.35); }
     </style>
 
     <script type="module">
@@ -242,7 +213,7 @@
                 }
 
                 const card = document.createElement('div');
-                card.className = "card-warm border border-islamic-100 rounded-2xl shadow-sm overflow-hidden";
+                card.className = "bg-white/95 backdrop-blur-sm border border-islamic-100 rounded-2xl shadow-sm overflow-hidden";
                 card.innerHTML = `
                     <div onclick="toggleAccordion('${key}')" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-islamic-50/50">
                         <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -430,15 +401,15 @@
 <body class="min-h-screen p-3 md:p-6 font-mm">
     <div class="w-full max-w-2xl mx-auto">
         <div id="homePage" class="space-y-4">
-            <div class="card-warm rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between">
+            <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between">
                 <div>
-                    <h1 class="text-xl font-bold flex items-center gap-2">
+                    <h1 class="text-xl font-bold text-islamic-800 flex items-center gap-2">
                         <span class="w-8 h-8 rounded-xl bg-islamic-600 text-white flex items-center justify-center text-sm"><i class="fa-solid fa-graduation-cap"></i></span>
                         Al-Kausar Classes
                     </h1>
-                    <p class="text-xs text-islamic-200 font-medium mt-1">Zoom Quick Launcher & Schedule</p>
+                    <p class="text-xs text-islamic-500 font-medium mt-1">Zoom Quick Launcher & Schedule</p>
                 </div>
-                <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 text-white rounded-xl text-xs font-semibold shadow-sm btn-glow">+ အသစ်ထည့်ရန်</button>
+                <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 text-white rounded-xl text-xs font-semibold shadow-sm">+ အသစ်ထည့်ရန်</button>
             </div>
 
             <div class="bg-gradient-to-br from-white to-gold-50/50 rounded-2xl p-4 border border-gold-200/80">
@@ -449,7 +420,7 @@
                 <p id="announcementText" class="text-xs text-islamic-900 bg-white/60 p-3 rounded-xl border border-gold-100/80">ကြေညာချက် ရယူနေပါသည်...</p>
             </div>
 
-            <div class="card-warm p-4 rounded-2xl border border-islamic-100 shadow-sm">
+            <div class="bg-white/95 p-4 rounded-2xl border border-islamic-100 shadow-sm">
                 <label class="block text-xs font-bold text-islamic-700 mb-2"><i class="fa-solid fa-magnifying-glass text-gold-500 mr-1"></i> အတန်း/ဆရာ ရှာဖွေရန်</label>
                 <div class="flex gap-2">
                     <input type="text" id="homeSearchInput" onkeypress="if(event.key==='Enter') handleSearch()" placeholder="ဆရာအမည် သို့မဟုတ် အတန်း..." class="flex-1 p-2 border border-islamic-200 rounded-xl text-xs">
@@ -459,12 +430,12 @@
 
             <div class="ornament-divider my-4"></div>
 
-            <button onclick="navigateTo('teachers')" class="w-full p-4 bg-islamic-900 text-white rounded-2xl font-bold text-sm flex items-center justify-between shadow-lg btn-glow">
+            <button onclick="navigateTo('teachers')" class="w-full p-4 bg-islamic-700 text-white rounded-2xl font-bold text-sm flex items-center justify-between shadow-lg btn-glow">
                 <span class="flex items-center gap-2"><i class="fa-solid fa-chalkboard-user text-gold-300"></i> ဆရာများစာရင်း ကြည့်ရန်</span>
                 <i class="fa-solid fa-arrow-right text-gold-300"></i>
             </button>
 
-            <div class="card-warm rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3">
+            <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3">
                 <h3 class="text-xs font-bold text-islamic-800 border-b border-islamic-100 pb-2"><i class="fa-solid fa-calendar-day text-gold-500 mr-1"></i> အတန်းအလိုက် အချိန်ဇယား ရှာရန်</h3>
                 <div class="grid grid-cols-12 gap-2">
                     <div class="col-span-4">
@@ -505,7 +476,7 @@
         </div>
 
         <div id="teachersPage" class="space-y-3 hidden">
-            <div class="card-warm rounded-2xl p-3 shadow-sm border border-islamic-100 flex items-center justify-between">
+            <div class="bg-white/95 rounded-2xl p-3 shadow-sm border border-islamic-100 flex items-center justify-between">
                 <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200"><i class="fa-solid fa-arrow-left"></i></button>
                 <h2 class="text-xs font-bold text-islamic-800">ဆရာများ စာရင်းနှင့် အချိန်ဇယား</h2>
                 <button onclick="openAddModal()" class="px-2.5 py-1.5 bg-gold-500 text-white rounded-xl text-xs font-bold">+ အသစ်</button>
@@ -543,7 +514,7 @@
                     <label class="block text-[11px] font-bold text-gold-700 mb-2">အချိန်ဇယား ပြင်ရန်</label>
                     <div class="flex gap-1 overflow-x-auto pb-2 scrollbar-none mb-2">
                         <button id="tab-sat" onclick="switchModalDay('sat')" class="px-3 py-1 bg-islamic-600 text-white rounded-xl text-xs">စနေ</button>
-                        <button id="tab-sun" onclick="switchModalDay('sun')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">တနင်္ဂနွေ</button>
+                        <button id="tab-sun" onclick="switchModalDay('sun')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">တနင်္ဂ���ွေ</button>
                         <button id="tab-mon" onclick="switchModalDay('mon')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">တနင်္လာ</button>
                         <button id="tab-tue" onclick="switchModalDay('tue')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">အင်္ဂါ</button>
                         <button id="tab-wed" onclick="switchModalDay('wed')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">ဗုဒ္ဓဟူး</button>
