@@ -16,7 +16,6 @@
                         'mm': ['"Noto Sans Myanmar"', '"Padauk"', 'sans-serif'],
                     },
                     colors: {
-                        /* Use a maroon-based "islamic" palette for deep, elegant background tones */
                         'islamic': {
                             50: '#fff5f6', 100: '#feecee', 200: '#f9d4d6', 300: '#f0a9ad', 400: '#e07b82',
                             500: '#b33b3f', 600: '#8b2a2d', 700: '#6a2022', 800: '#501618', 900: '#3a0f11', 950: '#1f0808',
@@ -32,17 +31,23 @@
     </script>
 
     <style>
+        :root {
+            --page-text: #ffffff;
+            --card-text: #1f0f10;
+            --card-bg: rgba(255,255,255,0.95);
+        }
+
         body {
             font-family: 'Noto Sans Myanmar', 'Padauk', sans-serif;
-            /* Deep maroon background with subtle gold/maroon ornaments */
             background-color: #3a0f11;
             background-image: 
                 radial-gradient(circle at 15% 20%, rgba(179,59,63,0.12) 0%, transparent 30%),
                 radial-gradient(circle at 80% 75%, rgba(212,148,26,0.06) 0%, transparent 30%),
                 linear-gradient(180deg, rgba(58,15,17,0.06), rgba(28,10,12,0.12));
             background-attachment: fixed;
-            color: #fff;
+            color: var(--page-text);
         }
+
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -58,19 +63,36 @@
             top: 50%;
             transform: translate(-50%, -50%);
             color: #d4941a;
-            background: #3a0f11; /* match page background so the ornament looks inset */
+            background: #3a0f11;
             padding: 0 8px;
             font-size: 10px;
         }
 
-        /* golden glow for primary buttons to feel more festive and premium */
         .btn-glow { box-shadow: 0 6px 22px rgba(212,148,26,0.20); }
         .btn-glow:hover { box-shadow: 0 10px 34px rgba(212,148,26,0.28); }
 
-        /* keep white cards readable but slightly warm to match gold accents */
-        .card-warm { background-color: rgba(255,255,255,0.95); }
+        .card-warm {
+            background-color: var(--card-bg);
+            color: var(--card-text) !important;
+        }
+
+        .card-warm .text-white,
+        .card-warm .text-islamic-50,
+        .card-warm .text-islamic-100,
+        .card-warm .text-islamic-200,
+        .card-warm .text-islamic-900,
+        .card-warm .text-islamic-800,
+        .card-warm .text-islamic-700,
+        .card-warm .text-islamic-600,
+        .card-warm .text-islamic-500 {
+            color: var(--card-text) !important;
+        }
+
+        .text-islamic-900, .text-islamic-800, .text-islamic-700, .text-islamic-600, .text-islamic-500 {
+            color: var(--page-text) !important;
+        }
     </style>
-        <!-- Firebase SDK Modules -->
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, push, remove, update, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -211,7 +233,7 @@
                         }
                     }
                     if (hasPeriods) {
-                        periodsHTML = `<div class="mt-2.5 overflow-x-auto scrollbar-none rounded-xl border border-islamic-200/80 shadow-sm"><table class="w-full border-collapse"><thead><tr class="">${tableHeaders}</tr></thead><tbody><tr>${tableCells}</tr></tbody></table></div>`;
+                        periodsHTML = `<div class="mt-2.5 overflow-x-auto scrollbar-none rounded-xl border border-islamic-200/80 shadow-sm"><table class="w-full border-collapse"><thead><tr>${tableHeaders}</tr></thead><tbody><tr>${tableCells}</tr></tbody></table></div>`;
                     } else {
                         periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် အချိန်ဇယား မရှိသေးပါ</div>`;
                     }
@@ -327,7 +349,7 @@
             window.activeModalDay = dayId;
             daysList.forEach(d => {
                 const btn = document.getElementById(`tab-${d.id}`);
-                if (btn) btn.className = (d.id === dayId) ? "px-3 py-1.5 bg-islamic-600 text-white rounded-xl text-xs font-semibold shrink-0" : "px-3 py-1.5 bg-white text-islamic-700 rounded-xl t[...='']";
+                if (btn) btn.className = (d.id === dayId) ? "px-3 py-1.5 bg-islamic-600 text-white rounded-xl text-xs font-semibold shrink-0" : "px-3 py-1.5 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200 shrink-0";
             });
 
             const dayData = window.tempSchedule[dayId] || {};
@@ -407,11 +429,10 @@
 </head>
 <body class="min-h-screen p-3 md:p-6 font-mm">
     <div class="w-full max-w-2xl mx-auto">
-        <!-- PAGE 1: HOME DASHBOARD -->
         <div id="homePage" class="space-y-4">
             <div class="card-warm rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between">
                 <div>
-                    <h1 class="text-xl font-bold text-islamic-50 flex items-center gap-2">
+                    <h1 class="text-xl font-bold flex items-center gap-2">
                         <span class="w-8 h-8 rounded-xl bg-islamic-600 text-white flex items-center justify-center text-sm"><i class="fa-solid fa-graduation-cap"></i></span>
                         Al-Kausar Classes
                     </h1>
@@ -443,7 +464,6 @@
                 <i class="fa-solid fa-arrow-right text-gold-300"></i>
             </button>
 
-            <!-- Timetable Lookup -->
             <div class="card-warm rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3">
                 <h3 class="text-xs font-bold text-islamic-800 border-b border-islamic-100 pb-2"><i class="fa-solid fa-calendar-day text-gold-500 mr-1"></i> အတန်းအလိုက် အချိန်ဇယား ရှာရန်</h3>
                 <div class="grid grid-cols-12 gap-2">
@@ -484,7 +504,6 @@
             </div>
         </div>
 
-        <!-- PAGE 2: TEACHERS LIST -->
         <div id="teachersPage" class="space-y-3 hidden">
             <div class="card-warm rounded-2xl p-3 shadow-sm border border-islamic-100 flex items-center justify-between">
                 <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200"><i class="fa-solid fa-arrow-left"></i></button>
@@ -496,7 +515,7 @@
             <div id="meetingContainer" class="space-y-2.5 pt-1"></div>
         </div>
     </div>
-        <!-- Modals -->
+
     <div id="announcementModal" class="fixed inset-0 bg-islamic-950/50 hidden flex items-center justify-center p-3 z-50">
         <div class="bg-white rounded-3xl p-5 w-full max-w-md">
             <h3 class="text-sm font-bold text-islamic-800 mb-2">ကြေညာချက် ပြင်ဆင်ရန်</h3>
