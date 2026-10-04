@@ -16,12 +16,13 @@
                         'mm': ['"Noto Sans Myanmar"', '"Padauk"', 'sans-serif'],
                     },
                     colors: {
+                        /* Use a maroon-based "islamic" palette for deep, elegant background tones */
                         'islamic': {
-                            50: '#f0f9f4', 100: '#dcf0e4', 200: '#bce0cb', 300: '#8ec9a8', 400: '#5aab80',
-                            500: '#368d5f', 600: '#25714b', 700: '#1e5a3e', 800: '#1a4833', 900: '#163b2b', 950: '#0b2017',
+                            50: '#fff5f6', 100: '#feecee', 200: '#f9d4d6', 300: '#f0a9ad', 400: '#e07b82',
+                            500: '#b33b3f', 600: '#8b2a2d', 700: '#6a2022', 800: '#501618', 900: '#3a0f11', 950: '#1f0808',
                         },
                         'gold': {
-                            50: '#fdf9ed', 100: '#f9efc9', 200: '#f3dd8f', 300: '#ecc555', 400: '#e6b02e',
+                            50: '#fef9ef', 100: '#fbf0d6', 200: '#f6e0af', 300: '#f0c775', 400: '#e6ac32',
                             500: '#d4941a', 600: '#b87214', 700: '#935214', 800: '#7a4218', 900: '#683818',
                         }
                     }
@@ -33,12 +34,14 @@
     <style>
         body {
             font-family: 'Noto Sans Myanmar', 'Padauk', sans-serif;
-            background-color: #f0f9f4;
+            /* Deep maroon background with subtle gold/maroon ornaments */
+            background-color: #3a0f11;
             background-image: 
-                radial-gradient(circle at 25% 25%, rgba(54, 141, 95, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(212, 148, 26, 0.05) 0%, transparent 50%),
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23368d5f' stroke-opacity='0.06' stroke-width='1'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Cpath d='M30 15 L45 30 L30 45 L15 30 Z'/%3E%3C/g%3E%3C/svg%3E");
+                radial-gradient(circle at 15% 20%, rgba(179,59,63,0.12) 0%, transparent 30%),
+                radial-gradient(circle at 80% 75%, rgba(212,148,26,0.06) 0%, transparent 30%),
+                linear-gradient(180deg, rgba(58,15,17,0.06), rgba(28,10,12,0.12));
             background-attachment: fixed;
+            color: #fff;
         }
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
@@ -55,13 +58,17 @@
             top: 50%;
             transform: translate(-50%, -50%);
             color: #d4941a;
-            background: #f0f9f4;
+            background: #3a0f11; /* match page background so the ornament looks inset */
             padding: 0 8px;
             font-size: 10px;
         }
 
-        .btn-glow { box-shadow: 0 4px 14px rgba(54, 141, 95, 0.25); }
-        .btn-glow:hover { box-shadow: 0 6px 20px rgba(54, 141, 95, 0.35); }
+        /* golden glow for primary buttons to feel more festive and premium */
+        .btn-glow { box-shadow: 0 6px 22px rgba(212,148,26,0.20); }
+        .btn-glow:hover { box-shadow: 0 10px 34px rgba(212,148,26,0.28); }
+
+        /* keep white cards readable but slightly warm to match gold accents */
+        .card-warm { background-color: rgba(255,255,255,0.95); }
     </style>
         <!-- Firebase SDK Modules -->
     <script type="module">
@@ -118,7 +125,7 @@
             if (data && data.text) {
                 textEl.innerText = data.text;
             } else {
-                textEl.innerText = "ကျောင်းနှင့် ပတ်သက်သော သတင်းအချက်အလက်များနှင့် ကြေညာချက်များကို ဤနေရာတွင် ဖော်ပြပေးသွားမည် ဖြစ်ပါသည်။";
+                textEl.innerText = "ကျောင်းနှင့် ပတ်သက်သော သတင်းအချက်အလက်များနှင့် ကြေညာချက်များ...";
             }
         });
 
@@ -204,16 +211,16 @@
                         }
                     }
                     if (hasPeriods) {
-                        periodsHTML = `<div class="mt-2.5 overflow-x-auto scrollbar-none rounded-xl border border-islamic-200/80 shadow-sm"><table class="w-full border-collapse"><thead><tr class="border-b border-gold-200/80">${tableHeaders}</tr></thead><tbody><tr>${tableCells}</tr></tbody></table></div>`;
+                        periodsHTML = `<div class="mt-2.5 overflow-x-auto scrollbar-none rounded-xl border border-islamic-200/80 shadow-sm"><table class="w-full border-collapse"><thead><tr class="">${tableHeaders}</tr></thead><tbody><tr>${tableCells}</tr></tbody></table></div>`;
                     } else {
-                        periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် သင်ကြားမည့် အတန်း မရှိပါ</div>`;
+                        periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် အချိန်ဇယား မရှိသေးပါ</div>`;
                     }
                 } else {
-                    periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် သင်ကြားမည့် အတန်း မရှိပါ</div>`;
+                    periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် အချိန်ဇယား မရှိသေးပါ</div>`;
                 }
 
                 const card = document.createElement('div');
-                card.className = "bg-white/95 backdrop-blur-sm border border-islamic-100 rounded-2xl shadow-sm overflow-hidden";
+                card.className = "card-warm border border-islamic-100 rounded-2xl shadow-sm overflow-hidden";
                 card.innerHTML = `
                     <div onclick="toggleAccordion('${key}')" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-islamic-50/50">
                         <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -225,16 +232,16 @@
                         </div>
                         <div class="flex items-center gap-2 shrink-0 ml-2">
                             ${item.phone ? `<a href="tel:${item.phone}" onclick="event.stopPropagation();" class="p-2 bg-gold-50 text-gold-700 rounded-xl text-xs"><i class="fa-solid fa-phone"></i></a>` : ''}
-                            <a href="${item.link}" target="_blank" onclick="event.stopPropagation();" class="px-3 py-1.5 bg-islamic-600 text-white font-semibold rounded-xl text-xs flex items-center gap-1"><i class="fa-solid fa-video"></i> Join</a>
-                            <div class="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 text-xs ${isExpanded ? 'rotate-180 text-islamic-600 bg-islamic-100' : ''}"><i class="fa-solid fa-chevron-down"></i></div>
+                            <a href="${item.link}" target="_blank" onclick="event.stopPropagation();" class="px-3 py-1.5 bg-islamic-600 text-white font-semibold rounded-xl text-xs flex items-center">Join</a>
+                            <div class="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 text-xs ${isExpanded ? 'rotate-180 text-islamic-600 bg-islamic-100' : ''}"><i class="fa-solid fa-chevron-up"></i></div>
                         </div>
                     </div>
                     <div class="${isExpanded ? 'block' : 'hidden'} px-3.5 pb-3.5 pt-1 border-t border-islamic-100/70 bg-islamic-50/30">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-[10px] font-bold text-islamic-600 uppercase">အချိန်ဇယား ကြည့်ရန်</span>
                             <div class="flex gap-1">
-                                <button onclick="event.stopPropagation(); openEditModal('${key}')" class="px-2 py-1 bg-gold-50 text-gold-700 rounded-lg text-[11px] border border-gold-200"><i class="fa-solid fa-pen-to-square"></i> ပြင်ရန်</button>
-                                <button onclick="event.stopPropagation(); deleteMeeting('${key}')" class="px-2 py-1 bg-red-50 text-red-600 rounded-lg text-[11px] border border-red-100"><i class="fa-solid fa-trash-can"></i> ဖျက်ရန်</button>
+                                <button onclick="event.stopPropagation(); openEditModal('${key}')" class="px-2 py-1 bg-gold-50 text-gold-700 rounded-lg text-[11px] border border-gold-200"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="event.stopPropagation(); deleteMeeting('${key}')" class="px-2 py-1 bg-red-50 text-red-600 rounded-lg text-[11px] border border-red-100"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                         <div class="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">${dayTabsHTML}</div>
@@ -285,13 +292,13 @@
                 if (teachersForPeriod.length > 0) {
                     foundAny = true;
                     teachersForPeriod.forEach(t => {
-                        tableBody.innerHTML += `<tr class="border-b border-islamic-100"><td class="px-3 py-2 text-center text-xs font-bold text-gold-700 bg-gold-50/50">${i} ချိန်မြောက်</td><td class="px-3 py-2 text-xs font-semibold text-islamic-900">${t.name}</td><td class="px-3 py-2 text-center"><a href="${t.link}" target="_blank" class="px-2.5 py-1 bg-islamic-600 text-white rounded-lg text-[11px] font-semibold"><i class="fa-solid fa-video"></i> Join</a></td></tr>`;
+                        tableBody.innerHTML += `<tr class="border-b border-islamic-100"><td class="px-3 py-2 text-center text-xs font-bold text-gold-700 bg-gold-50/50">${i} ချိန်</td><td class="px-3 py-2 text-xs">${t.name}</td><td class="px-3 py-2 text-xs"><a href="${t.link}" target="_blank" class="text-gold-600 font-semibold">Join</a></td></tr>`;
                     });
                 }
             }
 
             if (!foundAny) {
-                tableBody.innerHTML = `<tr><td colspan="3" class="px-3 py-4 text-center text-xs text-islamic-500 italic">ဤအတန်းအတွက် အချိန်ဇယား မရှိသေးပါ။</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="3" class="px-3 py-4 text-center text-xs text-islamic-500 italic">ဤအတန်းအတွက် အချိန်ဇယား မရှိသေးပါ</td></tr>`;
             }
             resultBox.classList.remove('hidden');
         };
@@ -320,7 +327,7 @@
             window.activeModalDay = dayId;
             daysList.forEach(d => {
                 const btn = document.getElementById(`tab-${d.id}`);
-                if (btn) btn.className = (d.id === dayId) ? "px-3 py-1.5 bg-islamic-600 text-white rounded-xl text-xs font-semibold shrink-0" : "px-3 py-1.5 bg-white text-islamic-700 rounded-xl text-xs font-semibold shrink-0 border border-islamic-200";
+                if (btn) btn.className = (d.id === dayId) ? "px-3 py-1.5 bg-islamic-600 text-white rounded-xl text-xs font-semibold shrink-0" : "px-3 py-1.5 bg-white text-islamic-700 rounded-xl t[...='']";
             });
 
             const dayData = window.tempSchedule[dayId] || {};
@@ -402,15 +409,15 @@
     <div class="w-full max-w-2xl mx-auto">
         <!-- PAGE 1: HOME DASHBOARD -->
         <div id="homePage" class="space-y-4">
-            <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between">
+            <div class="card-warm rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between">
                 <div>
-                    <h1 class="text-xl font-bold text-islamic-800 flex items-center gap-2">
+                    <h1 class="text-xl font-bold text-islamic-50 flex items-center gap-2">
                         <span class="w-8 h-8 rounded-xl bg-islamic-600 text-white flex items-center justify-center text-sm"><i class="fa-solid fa-graduation-cap"></i></span>
                         Al-Kausar Classes
                     </h1>
-                    <p class="text-xs text-islamic-500 font-medium mt-1">Zoom Quick Launcher & Schedule</p>
+                    <p class="text-xs text-islamic-200 font-medium mt-1">Zoom Quick Launcher & Schedule</p>
                 </div>
-                <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 text-white rounded-xl text-xs font-semibold shadow-sm">+ အသစ်ထည့်ရန်</button>
+                <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 text-white rounded-xl text-xs font-semibold shadow-sm btn-glow">+ အသစ်ထည့်ရန်</button>
             </div>
 
             <div class="bg-gradient-to-br from-white to-gold-50/50 rounded-2xl p-4 border border-gold-200/80">
@@ -421,24 +428,24 @@
                 <p id="announcementText" class="text-xs text-islamic-900 bg-white/60 p-3 rounded-xl border border-gold-100/80">ကြေညာချက် ရယူနေပါသည်...</p>
             </div>
 
-            <div class="bg-white/95 p-4 rounded-2xl border border-islamic-100 shadow-sm">
+            <div class="card-warm p-4 rounded-2xl border border-islamic-100 shadow-sm">
                 <label class="block text-xs font-bold text-islamic-700 mb-2"><i class="fa-solid fa-magnifying-glass text-gold-500 mr-1"></i> အတန်း/ဆရာ ရှာဖွေရန်</label>
                 <div class="flex gap-2">
-                    <input type="text" id="homeSearchInput" onkeypress="if(event.key==='Enter') handleSearch()" placeholder="ဆရာအမည် သို့မဟုတ် အတန်း..." class="flex-1 px-3 py-2 bg-islamic-50/40 border border-islamic-200 rounded-xl text-xs">
+                    <input type="text" id="homeSearchInput" onkeypress="if(event.key==='Enter') handleSearch()" placeholder="ဆရာအမည် သို့မဟုတ် အတန်း..." class="flex-1 p-2 border border-islamic-200 rounded-xl text-xs">
                     <button onclick="handleSearch()" class="px-4 py-2 bg-islamic-600 text-white rounded-xl text-xs font-semibold">ရှာမည်</button>
                 </div>
             </div>
 
             <div class="ornament-divider my-4"></div>
 
-            <button onclick="navigateTo('teachers')" class="w-full p-4 bg-islamic-700 text-white rounded-2xl font-bold text-sm flex items-center justify-between shadow-lg btn-glow">
+            <button onclick="navigateTo('teachers')" class="w-full p-4 bg-islamic-900 text-white rounded-2xl font-bold text-sm flex items-center justify-between shadow-lg btn-glow">
                 <span class="flex items-center gap-2"><i class="fa-solid fa-chalkboard-user text-gold-300"></i> ဆရာများစာရင်း ကြည့်ရန်</span>
                 <i class="fa-solid fa-arrow-right text-gold-300"></i>
             </button>
 
             <!-- Timetable Lookup -->
-            <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3">
-                <h3 class="text-xs font-bold text-islamic-800 border-b border-islamic-100 pb-2"><i class="fa-solid fa-calendar-day text-gold-500 mr-1"></i> အတန်းအလိုက် အချိန်ဇယားကြည့်ရန်</h3>
+            <div class="card-warm rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3">
+                <h3 class="text-xs font-bold text-islamic-800 border-b border-islamic-100 pb-2"><i class="fa-solid fa-calendar-day text-gold-500 mr-1"></i> အတန်းအလိုက် အချိန်ဇယား ရှာရန်</h3>
                 <div class="grid grid-cols-12 gap-2">
                     <div class="col-span-4">
                         <label class="block text-[10px] font-bold text-islamic-700 mb-1">အတန်း</label>
@@ -463,13 +470,13 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="searchClassSchedule()" class="w-full py-2 bg-gold-500 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-clock mr-1"></i> အချိန်ဇယား ကြည့်ရန်</button>
+                <button onclick="searchClassSchedule()" class="w-full py-2 bg-gold-500 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-clock mr-1"></i> အချိန်ဇယား ကြည့်မည်</button>
 
                 <div id="classTimetableResult" class="hidden mt-3 pt-3 border-t border-islamic-100">
                     <h4 id="classTimetableTitle" class="text-xs font-bold text-islamic-800 mb-2"></h4>
                     <div class="overflow-x-auto rounded-xl border border-islamic-200">
                         <table class="w-full text-left border-collapse">
-                            <thead><tr class="bg-islamic-600 text-white text-[11px]"><th class="px-3 py-2 text-center font-bold">အချိန်</th><th class="px-3 py-2 font-bold">ဆရာ</th><th class="px-3 py-2 text-center font-bold">Zoom</th></tr></thead>
+                            <thead><tr class="bg-islamic-600 text-white text-[11px]"><th class="px-3 py-2 text-center font-bold">အချိန်</th><th class="px-3 py-2 font-bold">ဆရာ</th><th class="px-3 py-2 font-bold">လင့်ခ်</th></tr></thead>
                             <tbody id="classTimetableBody" class="bg-white"></tbody>
                         </table>
                     </div>
@@ -479,13 +486,13 @@
 
         <!-- PAGE 2: TEACHERS LIST -->
         <div id="teachersPage" class="space-y-3 hidden">
-            <div class="bg-white/95 rounded-2xl p-3 shadow-sm border border-islamic-100 flex items-center justify-between">
-                <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200"><i class="fa-solid fa-arrow-left"></i> မူလစာမျက်နှာ</button>
+            <div class="card-warm rounded-2xl p-3 shadow-sm border border-islamic-100 flex items-center justify-between">
+                <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200"><i class="fa-solid fa-arrow-left"></i></button>
                 <h2 class="text-xs font-bold text-islamic-800">ဆရာများ စာရင်းနှင့် အချိန်ဇယား</h2>
                 <button onclick="openAddModal()" class="px-2.5 py-1.5 bg-gold-500 text-white rounded-xl text-xs font-bold">+ အသစ်</button>
             </div>
 
-            <input type="text" id="teacherSearchInput" oninput="renderMeetings()" placeholder="ဆရာအမည်၊ အတန်း သို့မဟုတ် ID ဖြင့် ရှာရန်..." class="w-full px-3 py-2.5 bg-white border border-islamic-200 rounded-xl text-xs shadow-sm">
+            <input type="text" id="teacherSearchInput" oninput="renderMeetings()" placeholder="ဆရာအမည်၊ အတန်း သို့မဟုတ် ID ဖြင့် ရှာရန်" class="w-full p-3 rounded-xl border border-islamic-200">
             <div id="meetingContainer" class="space-y-2.5 pt-1"></div>
         </div>
     </div>
