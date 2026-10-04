@@ -35,10 +35,13 @@
             font-family: 'Noto Sans Myanmar', 'Padauk', sans-serif;
             background-color: #f0f9f4;
             background-image: 
-                radial-gradient(circle at 25% 25%, rgba(54, 141, 95, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(212, 148, 26, 0.05) 0%, transparent 50%),
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23368d5f' stroke-opacity='0.06' stroke-width='1' %3E%3Cpath d='M10 0 L0 10 M0 0 L10 10 M20 0 L10 10 M10 0 L20 10 M30 0 L20 10 M20 0 L30 10 M40 0 L30 10 M30 0 L40 10 M50 0 L40 10 M40 0 L50 10 M60 0 L50 10 M50 0 L60 10 M0 20 L10 30 M10 20 L20 30 M20 20 L30 30 M30 20 L40 30 M40 20 L50 30 M50 20 L60 30 M0 40 L10 50 M10 40 L20 50 M20 40 L30 50 M30 40 L40 50 M40 40 L50 50 M50 40 L60 50 M0 60 L10 70 M10 60 L20 70 M20 60 L30 70 M30 60 L40 70 M40 60 L50 70 M50 60 L60 70'/%3E%3C/g%3E%3C/svg%3E");
+                radial-gradient(circle at 25% 25%, rgba(54, 141, 95, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 75% 75%, rgba(212, 148, 26, 0.04) 0%, transparent 45%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23368d5f' stroke-opacity='0.06' stroke-width='1'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Cpath d='M30 15 L45 30 L30 45 L15 30 Z'/%3E%3C/g%3E%3C/svg%3E");
             background-attachment: fixed;
+            color: #133827;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
@@ -58,10 +61,44 @@
             background: #f0f9f4;
             padding: 0 8px;
             font-size: 10px;
+            border-radius: 6px;
         }
 
-        .btn-glow { box-shadow: 0 4px 14px rgba(54, 141, 95, 0.25); }
-        .btn-glow:hover { box-shadow: 0 6px 20px rgba(54, 141, 95, 0.35); }
+        .btn-glow {
+            box-shadow: 0 6px 22px rgba(54,141,95,0.14), inset 0 1px 0 rgba(255,255,255,0.04);
+            transition: box-shadow 180ms ease, transform 120ms ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 14px 40px rgba(54,141,95,0.18), 0 6px 18px rgba(212,148,26,0.10), inset 0 1px 0 rgba(255,255,255,0.06);
+            transform: translateY(-1px);
+        }
+
+        .card-warm {
+            background-color: rgba(255,255,255,0.96);
+            color: #10221a !important;
+            border-radius: 1rem;
+            box-shadow: 0 6px 18px rgba(16,34,26,0.06);
+        }
+
+        .card-warm .text-white,
+        .card-warm .text-islamic-50,
+        .card-warm .text-islamic-100,
+        .card-warm .text-islamic-200,
+        .card-warm .text-islamic-500,
+        .card-warm .text-islamic-600,
+        .card-warm .text-islamic-700,
+        .card-warm .text-islamic-800,
+        .card-warm .text-islamic-900 {
+            color: #10221a !important;
+        }
+
+        a, .text-gold-600, .text-gold-500 {
+            color: #b86f14;
+        }
+
+        h1, h2, h3 {
+            color: #0f4031;
+        }
     </style>
 
     <script type="module">
@@ -409,7 +446,7 @@
                     </h1>
                     <p class="text-xs text-islamic-500 font-medium mt-1">Zoom Quick Launcher & Schedule</p>
                 </div>
-                <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 text-white rounded-xl text-xs font-semibold shadow-sm">+ အသစ်ထည့်ရန်</button>
+                <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 text-white rounded-xl text-xs font-semibold shadow-sm btn-glow">+ အသစ်ထည့်ရန်</button>
             </div>
 
             <div class="bg-gradient-to-br from-white to-gold-50/50 rounded-2xl p-4 border border-gold-200/80">
@@ -479,7 +516,7 @@
             <div class="bg-white/95 rounded-2xl p-3 shadow-sm border border-islamic-100 flex items-center justify-between">
                 <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200"><i class="fa-solid fa-arrow-left"></i></button>
                 <h2 class="text-xs font-bold text-islamic-800">ဆရာများ စာရင်းနှင့် အချိန်ဇယား</h2>
-                <button onclick="openAddModal()" class="px-2.5 py-1.5 bg-gold-500 text-white rounded-xl text-xs font-bold">+ အသစ်</button>
+                <button onclick="openAddModal()" class="px-2.5 py-1.5 bg-gold-500 text-white rounded-xl text-xs font-bold btn-glow">+ အသစ်</button>
             </div>
 
             <input type="text" id="teacherSearchInput" oninput="renderMeetings()" placeholder="ဆရာအမည်၊ အတန်း သို့မဟုတ် ID ဖြင့် ရှာရန်" class="w-full p-3 rounded-xl border border-islamic-200">
@@ -514,7 +551,7 @@
                     <label class="block text-[11px] font-bold text-gold-700 mb-2">အချိန်ဇယား ပြင်ရန်</label>
                     <div class="flex gap-1 overflow-x-auto pb-2 scrollbar-none mb-2">
                         <button id="tab-sat" onclick="switchModalDay('sat')" class="px-3 py-1 bg-islamic-600 text-white rounded-xl text-xs">စနေ</button>
-                        <button id="tab-sun" onclick="switchModalDay('sun')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">တနင်္ဂ���ွေ</button>
+                        <button id="tab-sun" onclick="switchModalDay('sun')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">တနင်္ဂနွေ</button>
                         <button id="tab-mon" onclick="switchModalDay('mon')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">တနင်္လာ</button>
                         <button id="tab-tue" onclick="switchModalDay('tue')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">အင်္ဂါ</button>
                         <button id="tab-wed" onclick="switchModalDay('wed')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs">ဗုဒ္ဓဟူး</button>
