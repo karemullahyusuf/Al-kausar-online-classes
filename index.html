@@ -1,341 +1,626 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Al-Kausar Academic Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Al-Kausar Classes | Zoom Launcher v2</title>
+    <meta name="app-version" content="2.0.0">
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- PWA & Mobile Optimization Setup -->
+    <meta name="theme-color" content="#1a4833">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="data:application/manifest+json;utf8,{\"name\":\"Al-Kausar Classes\",\"short_name\":\"Al-Kausar\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"%23f0f9f4\",\"theme_color\":\"%231a4833\",\"icons\":[{\"src\":\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/svgs/solid/graduation-cap.svg\",\"sizes\":\"192x192\",\"type\":\"image/svg+xml\"}]}">
 
-  <style>
-    body {
-      font-family: 'Pyidaungsu', sans-serif;
-      background-color: #f0f9f4;
-      color: #133827;
-    }
-    @media print {
-      .no-print { display: none !important; }
-      .print-only { display: block !important; }
-      body { background: white !important; color: black !important; }
-      table { width: 100% !important; border-collapse: collapse !important; }
-      th, td { border: 1px solid #000 !important; padding: 6px !important; text-align: center !important; }
-    }
-  </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mm': ['"Noto Sans Myanmar"', '"Padauk"', 'sans-serif'],
+                    },
+                    colors: {
+                        'islamic': {
+                            50: '#f0f9f4', 100: '#dcf0e4', 200: '#bce0cb', 300: '#8ec9a8', 400: '#5aab80',
+                            500: '#368d5f', 600: '#25714b', 700: '#1e5a3e', 800: '#1a4833', 900: '#163b2b', 950: '#0b2017',
+                        },
+                        'gold': {
+                            50: '#fdf9ed', 100: '#f9efc9', 200: '#f3dd8f', 300: '#ecc555', 400: '#e6b02e',
+                            500: '#d4941a', 600: '#b87214', 700: '#935214', 800: '#7a4218', 900: '#683818',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans Myanmar', 'Padauk', sans-serif;
+            background-color: #f0f9f4;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(54, 141, 95, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 75% 75%, rgba(212, 148, 26, 0.04) 0%, transparent 45%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23368d5f' stroke-opacity='0.06' stroke-width='1'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Cpath d='M30 15 L45 30 L30 45 L15 30 Z'/%3E%3C/g%3E%3C/svg%3E");
+            background-attachment: fixed;
+            color: #133827;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .ornament-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #d4941a 50%, transparent);
+            position: relative;
+        }
+        .ornament-divider::before {
+            content: '◆';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: #d4941a;
+            background: #f0f9f4;
+            padding: 0 8px;
+            font-size: 10px;
+            border-radius: 6px;
+        }
+
+        .btn-glow {
+            box-shadow: 0 6px 22px rgba(54,141,95,0.14), inset 0 1px 0 rgba(255,255,255,0.04);
+            transition: box-shadow 180ms ease, transform 120ms ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 14px 40px rgba(54,141,95,0.18), 0 6px 18px rgba(212,148,26,0.10), inset 0 1px 0 rgba(255,255,255,0.06);
+            transform: translateY(-1px);
+        }
+
+        a, .text-gold-600, .text-gold-500 { color: #b86f14; }
+        h1, h2, h3 { color: #0f4031; }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push, remove, update, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // ============================================================
+        // APP CONFIGURATION — Version 2.0
+        // ============================================================
+        const APP_CONFIG = Object.freeze({
+            version: "2.0.0",
+            cacheKeys: {
+                meetings: "alkausar_meetings_cache",
+                announcement: "alkausar_announcement_cache"
+            },
+            adminPassword: "55155", // Move to Firebase Auth before production.
+            maxPeriods: 8
+        });
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrNrQj8RzKy7UHNifSY7jpeSw1qtSeDOI",
+            authDomain: "jki-zoom-links.firebaseapp.com",
+            databaseURL: "https://jki-zoom-links-default-rtdb.firebaseio.com",
+            projectId: "jki-zoom-links",
+            storageBucket: "jki-zoom-links.firebasestorage.app",
+            messagingSenderId: "890464047034",
+            appId: "1:890464047034:web:4448d2d73ee4a6f4a85783",
+            measurementId: "G-S3JLLDYRWY"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const meetingsRef = ref(db, 'meetings');
+        const announcementRef = ref(db, 'announcement');
+
+        let meetingsData = {};
+        window.activeViewDays = {};
+        window.expandedCards = {};
+        window.activeModalDay = 'sat';
+
+        const { meetings: LOCAL_STORAGE_KEY, announcement: ANNOUNCEMENT_CACHE_KEY } = APP_CONFIG.cacheKeys;
+
+        function loadCachedData() {
+            try {
+                const cachedMeetings = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (cachedMeetings) {
+                    meetingsData = JSON.parse(cachedMeetings);
+                    renderMeetings();
+                }
+                const cachedAnn = localStorage.getItem(ANNOUNCEMENT_CACHE_KEY);
+                if (cachedAnn) {
+                    const textEl = document.getElementById('announcementText');
+                    if (textEl) textEl.innerText = cachedAnn;
+                }
+            } catch (e) {
+                console.warn('Local Cache Read Error', e);
+            }
+        }
+
+        window.toggleModal = function(show) {
+            const modal = document.getElementById('addModal');
+            if (show) modal.classList.remove('hidden'); else modal.classList.add('hidden');
+        };
+
+        const daysList = [
+            { id: 'sat', label: 'စနေ' },
+            { id: 'sun', label: 'တနင်္ဂနွေ' },
+            { id: 'mon', label: 'တနင်္လာ' },
+            { id: 'tue', label: 'အင်္ဂါ' },
+            { id: 'wed', label: 'ဗုဒ္ဓဟူး' },
+            { id: 'thu', label: 'ကြာသပတေး' },
+            { id: 'fri', label: 'သောကြာ' }
+        ];
+
+        function formatPeriodText(pData) {
+            if (!pData) return '';
+            if (typeof pData === 'string') return pData;
+            if (typeof pData === 'object') {
+                if (!pData.grade) return '';
+                if (pData.section && pData.section !== '-') {
+                    return `${pData.grade} (${pData.section})`;
+                }
+                return pData.grade;
+            }
+            return '';
+        }
+
+        loadCachedData();
+
+        onValue(announcementRef, (snapshot) => {
+            const data = snapshot.val();
+            const textEl = document.getElementById('announcementText');
+            if (data && data.text) {
+                textEl.innerText = data.text;
+                localStorage.setItem(ANNOUNCEMENT_CACHE_KEY, data.text);
+            } else {
+                textEl.innerText = "ကျောင်းနှင့် ပတ်သက်သော သတင်းအချက်အလက်များနှင့် ကြေညာချက်များ...";
+            }
+        });
+
+        onValue(meetingsRef, (snapshot) => {
+            meetingsData = snapshot.val() || {};
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(meetingsData));
+            } catch (e) {
+                console.warn('Local Cache Write Error', e);
+            }
+            renderMeetings();
+        });
+
+        window.navigateTo = function(page) {
+            const homePage = document.getElementById('homePage');
+            const teachersPage = document.getElementById('teachersPage');
+            if (page === 'teachers') {
+                homePage.classList.add('hidden');
+                teachersPage.classList.remove('hidden');
+            } else {
+                teachersPage.classList.add('hidden');
+                homePage.classList.remove('hidden');
+            }
+            window.scrollTo(0, 0);
+        };
+
+        window.handleSearch = function() {
+            const homeSearch = document.getElementById('homeSearchInput').value;
+            document.getElementById('teacherSearchInput').value = homeSearch;
+            window.navigateTo('teachers');
+            renderMeetings();
+        };
+
+        window.toggleAccordion = function(key) {
+            window.expandedCards[key] = !window.expandedCards[key];
+            renderMeetings();
+        };
+
+        window.renderMeetings = function() {
+            const container = document.getElementById('meetingContainer');
+            if (!container) return;
+            const searchKeyword = (document.getElementById('teacherSearchInput')?.value || '').toLowerCase().trim();
+            container.innerHTML = '';
+            const keys = Object.keys(meetingsData);
+
+            if (keys.length === 0) {
+                container.innerHTML = `<div class="text-center py-16 text-islamic-600/60 text-xs"><p>ဒေတာ မရှိသေးပါ</p></div>`;
+                return;
+            }
+
+            keys.forEach(key => {
+                const item = meetingsData[key];
+                const nameMatch = (item.name || '').toLowerCase().includes(searchKeyword);
+                const idMatch = (item.idNum || '').toLowerCase().includes(searchKeyword);
+                const phoneMatch = (item.phone || '').toLowerCase().includes(searchKeyword);
+                let scheduleMatch = item.weeklySchedule && JSON.stringify(item.weeklySchedule).toLowerCase().includes(searchKeyword);
+
+                if (searchKeyword && !nameMatch && !idMatch && !phoneMatch && !scheduleMatch) return;
+
+                if (!window.activeViewDays[key]) window.activeViewDays[key] = 'sat';
+                const currentDay = window.activeViewDays[key];
+                const isExpanded = searchKeyword ? true : !!window.expandedCards[key];
+
+                let dayTabsHTML = '';
+                daysList.forEach(d => {
+                    const hasData = item.weeklySchedule && item.weeklySchedule[d.id] && Object.keys(item.weeklySchedule[d.id]).length > 0;
+                    const isActive = currentDay === d.id;
+                    let btnStyle = "px-2.5 py-1 text-[11px] rounded-lg border transition-colors ";
+                    if (isActive) btnStyle += "bg-islamic-600 text-white border-islamic-600";
+                    else if (hasData) btnStyle += "bg-gold-50 text-gold-700 border-gold-200 hover:bg-gold-100";
+                    else btnStyle += "bg-white text-gray-400 border-gray-200 hover:bg-gray-50";
+
+                    dayTabsHTML += `<button onclick="event.stopPropagation(); changeCardDay('${key}', '${d.id}')" class="${btnStyle}">${d.label}</button>`;
+                });
+
+                let periodsHTML = '';
+                const daySchedule = item.weeklySchedule ? item.weeklySchedule[currentDay] : null;
+
+                if (daySchedule && Object.keys(daySchedule).length > 0) {
+                    let hasPeriods = false, tableHeaders = '', tableCells = '';
+                    for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+                        const formattedText = formatPeriodText(daySchedule[`p${i}`]);
+                        if (formattedText) {
+                            hasPeriods = true;
+                            tableHeaders += `<th class="px-3 py-1.5 text-center text-[10px] font-bold text-gold-700 bg-gold-50 border-r border-gold-200/60 last:border-r-0">ချိန် ${i}</th>`;
+                            tableCells += `<td class="px-3 py-2 text-center text-xs font-semibold text-islamic-900 border-r border-islamic-100 last:border-r-0 bg-white/80">${formattedText}</td>`;
+                        }
+                    }
+                    if (hasPeriods) {
+                        periodsHTML = `<div class="mt-2.5 overflow-x-auto scrollbar-none rounded-xl border border-islamic-200/80 shadow-sm"><table class="w-full border-collapse"><thead><tr>${tableHeaders}</tr></thead><tbody><tr>${tableCells}</tr></tbody></table></div>`;
+                    } else {
+                        periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် အချိန်ဇယား မရှိသေးပါ</div>`;
+                    }
+                } else {
+                    periodsHTML = `<div class="text-[11px] text-islamic-500/70 italic py-2 text-center bg-islamic-50/50 rounded-lg border border-dashed border-islamic-200 mt-2">ဤနေ့အတွက် အချိန်ဇယား မရှိသေးပါ</div>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-white/95 backdrop-blur-sm border border-islamic-100 rounded-2xl shadow-sm overflow-hidden";
+                card.innerHTML = `
+                    <div onclick="toggleAccordion('${key}')" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-islamic-50/50 transition-colors">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <div class="w-10 h-10 rounded-xl bg-islamic-100 text-islamic-700 flex items-center justify-center font-bold text-sm shrink-0"><i class="fa-solid fa-user-tie"></i></div>
+                            <div class="min-w-0 flex-1">
+                                <h3 class="font-bold text-islamic-900 text-sm truncate">${item.name}</h3>
+                                <p class="text-[11px] text-islamic-500 truncate"><i class="fa-regular fa-id-badge text-gold-500 mr-1"></i>${item.idNum || 'N/A'} ${item.phone ? ' • ' + item.phone : ''}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 ml-2">
+                            ${item.phone ? `<a href="tel:${item.phone}" onclick="event.stopPropagation();" class="p-2 bg-gold-50 text-gold-700 rounded-xl text-xs hover:bg-gold-100"><i class="fa-solid fa-phone"></i></a>` : ''}
+                            <a href="${item.link}" target="_blank" onclick="event.stopPropagation();" class="px-3 py-1.5 bg-islamic-600 hover:bg-islamic-700 text-white font-semibold rounded-xl text-xs flex items-center shadow-sm">Join</a>
+                            <div class="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 text-xs transition-transform ${isExpanded ? 'rotate-180 text-islamic-600 bg-islamic-100' : ''}"><i class="fa-solid fa-chevron-up"></i></div>
+                        </div>
+                    </div>
+                    <div class="${isExpanded ? 'block' : 'hidden'} px-3.5 pb-3.5 pt-1 border-t border-islamic-100/70 bg-islamic-50/30">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-bold text-islamic-600 uppercase">အချိန်ဇယား ကြည့်ရန်</span>
+                            <div class="flex gap-1">
+                                <button onclick="event.stopPropagation(); openEditModal('${key}')" class="px-2 py-1 bg-gold-50 text-gold-700 rounded-lg text-[11px] border border-gold-200 hover:bg-gold-100"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="event.stopPropagation(); deleteMeeting('${key}')" class="px-2 py-1 bg-red-50 text-red-600 rounded-lg text-[11px] border border-red-100 hover:bg-red-100"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">${dayTabsHTML}</div>
+                        ${periodsHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        window.changeCardDay = function(key, dayId) {
+            window.activeViewDays[key] = dayId;
+            renderMeetings();
+        };
+
+        window.searchClassSchedule = function() {
+            const grade = document.getElementById('filterGradeSelect').value;
+            const section = document.getElementById('filterSectionSelect').value;
+            const day = document.getElementById('filterDaySelect').value;
+            const resultBox = document.getElementById('classTimetableResult');
+            const tableBody = document.getElementById('classTimetableBody');
+            const resultTitle = document.getElementById('classTimetableTitle');
+
+            if (!grade) { alert("ကျေးဇူးပြု၍ အတန်း ရွေးချယ်ပါ။"); return; }
+
+            const dayObj = daysList.find(d => d.id === day);
+            const secLabel = (section && section !== '-') ? ` (${section})` : '';
+            resultTitle.innerText = `${grade}${secLabel} - ${dayObj ? dayObj.label : ''}နေ့ အချိန်ဇယား`;
+            tableBody.innerHTML = '';
+            let foundAny = false;
+
+            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+                let teachersForPeriod = [];
+                Object.keys(meetingsData).forEach(key => {
+                    const teacher = meetingsData[key];
+                    const sched = teacher.weeklySchedule ? teacher.weeklySchedule[day] : null;
+                    if (sched && sched[`p${i}`]) {
+                        const pVal = sched[`p${i}`];
+                        let isMatch = false;
+                        if (typeof pVal === 'string' && pVal === grade) isMatch = true;
+                        else if (typeof pVal === 'object' && pVal.grade === grade) {
+                            if (!section || section === '-' || pVal.section === section || pVal.section === '-') isMatch = true;
+                        }
+                        if (isMatch) teachersForPeriod.push({ name: teacher.name, link: teacher.link });
+                    }
+                });
+
+                if (teachersForPeriod.length > 0) {
+                    foundAny = true;
+                    teachersForPeriod.forEach(t => {
+                        tableBody.innerHTML += `<tr class="border-b border-islamic-100"><td class="px-3 py-2 text-center text-xs font-bold text-gold-700 bg-gold-50/50">${i} ချိန်</td><td class="px-3 py-2 text-xs">${t.name}</td><td class="px-3 py-2 text-xs"><a href="${t.link}" target="_blank" class="text-gold-600 hover:underline font-semibold">Join</a></td></tr>`;
+                    });
+                }
+            }
+
+            if (!foundAny) {
+                tableBody.innerHTML = `<tr><td colspan="3" class="px-3 py-4 text-center text-xs text-islamic-500 italic">ဤအတန်းအတွက် အချိန်ဇယား မရှိသေးပါ</td></tr>`;
+            }
+            resultBox.classList.remove('hidden');
+        };
+
+        window.openAnnouncementModal = function() {
+            document.getElementById('announcementInput').value = document.getElementById('announcementText').innerText;
+            document.getElementById('announcementModal').classList.remove('hidden');
+        };
+
+        window.saveAnnouncement = function() {
+            const text = document.getElementById('announcementInput').value.trim();
+            if (!text) return;
+            if (prompt("Admin Password ရိုက်ထည့်ပါ:") === APP_CONFIG.adminPassword) {
+                set(announcementRef, { text }).then(() => document.getElementById('announcementModal').classList.add('hidden'));
+            } else alert("Password မမှန်ပါ။");
+        };
+
+        window.tempSchedule = {};
+        window.handleGradeChange = function(i) {
+            const g = document.getElementById(`p${i}_grade`), c = document.getElementById(`p${i}_custom`);
+            if (g.value === 'Other') c.classList.remove('hidden');
+            else { c.classList.add('hidden'); c.value = ''; }
+        };
+
+        window.loadDayToInputs = function(dayId) {
+            window.activeModalDay = dayId;
+            daysList.forEach(d => {
+                const btn = document.getElementById(`tab-${d.id}`);
+                if (btn) btn.className = (d.id === dayId) ? "px-3 py-1.5 bg-islamic-600 text-white rounded-xl text-xs font-semibold shrink-0" : "px-3 py-1.5 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200 shrink-0";
+            });
+
+            const dayData = window.tempSchedule[dayId] || {};
+            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+                const pVal = dayData[`p${i}`], g = document.getElementById(`p${i}_grade`), s = document.getElementById(`p${i}_sec`), c = document.getElementById(`p${i}_custom`);
+                if (!pVal) { g.value = ''; s.value = '-'; c.value = ''; c.classList.add('hidden'); }
+                else if (typeof pVal === 'string') { g.value = 'Other'; s.value = '-'; c.value = pVal; c.classList.remove('hidden'); }
+                else {
+                    g.value = pVal.isOther ? 'Other' : (pVal.grade || '');
+                    s.value = pVal.section || '-';
+                    c.value = pVal.isOther ? (pVal.grade || '') : '';
+                    if (pVal.isOther) c.classList.remove('hidden'); else c.classList.add('hidden');
+                }
+            }
+        };
+
+        window.switchModalDay = function(dayId) { saveCurrentDayToTemp(); window.loadDayToInputs(dayId); };
+
+        function saveCurrentDayToTemp() {
+            const dayId = window.activeModalDay;
+            if (!window.tempSchedule[dayId]) window.tempSchedule[dayId] = {};
+            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+                const g = document.getElementById(`p${i}_grade`).value, s = document.getElementById(`p${i}_sec`).value, c = document.getElementById(`p${i}_custom`).value.trim();
+                if (g === 'Other' && c) window.tempSchedule[dayId][`p${i}`] = { grade: c, section: s, isOther: true };
+                else if (g && g !== 'Other') window.tempSchedule[dayId][`p${i}`] = { grade: g, section: s };
+                else delete window.tempSchedule[dayId][`p${i}`];
+            }
+        }
+
+        window.saveMeeting = function() {
+            saveCurrentDayToTemp();
+            const editId = document.getElementById('editKey').value;
+            const name = document.getElementById('teacherName').value.trim();
+            const link = document.getElementById('zoomLink').value.trim();
+            const idNum = document.getElementById('meetingId').value.trim();
+            const phone = document.getElementById('teacherPhone').value.trim();
+
+            if (!name || !link) { alert("ဆရာအမည်နှင့် Zoom Link ထည့်ပါ။"); return; }
+            if (prompt("Admin Password ရိုက်ထည့်ပါ:") !== APP_CONFIG.adminPassword) { alert("Password မမှန်ပါ။"); return; }
+
+            const payload = { name, link, idNum, phone, weeklySchedule: window.tempSchedule };
+            if (editId) update(ref(db, `meetings/${editId}`), payload).then(() => window.toggleModal(false));
+            else push(meetingsRef, payload).then(() => window.toggleModal(false));
+        };
+
+        window.openEditModal = function(key) {
+            const item = meetingsData[key]; if (!item) return;
+            document.getElementById('modalTitle').innerText = "အတန်း အချက်အလက် ပြင်ရန်";
+            document.getElementById('editKey').value = key;
+            document.getElementById('teacherName').value = item.name || '';
+            document.getElementById('zoomLink').value = item.link || '';
+            document.getElementById('meetingId').value = item.idNum || '';
+            document.getElementById('teacherPhone').value = item.phone || '';
+            window.tempSchedule = JSON.parse(JSON.stringify(item.weeklySchedule || {}));
+            window.loadDayToInputs('sat');
+            window.toggleModal(true);
+        };
+
+        window.openAddModal = function() {
+            document.getElementById('modalTitle').innerText = "အတန်းအသစ် ထည့်ရန်";
+            document.getElementById('editKey').value = '';
+            document.getElementById('teacherName').value = '';
+            document.getElementById('zoomLink').value = '';
+            document.getElementById('meetingId').value = '';
+            document.getElementById('teacherPhone').value = '';
+            window.tempSchedule = {};
+            window.loadDayToInputs('sat');
+            window.toggleModal(true);
+        };
+
+        window.deleteMeeting = function(key) {
+            if (prompt("Admin Password ရိုက်ထည့်ပါ:") === APP_CONFIG.adminPassword) {
+                if (confirm("ဖျက်ရန် သေချာပါသလား။")) remove(ref(db, `meetings/${key}`));
+            } else alert("Password မမှန်ပါ။");
+        };
+    </script>
 </head>
-<body class="p-3 md:p-6 min-h-screen">
-
-  <div class="max-w-4xl mx-auto space-y-5">
-
-    <!-- Header Section -->
-    <header class="no-print bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 flex flex-wrap justify-between items-center gap-3">
-      <div>
-        <h1 class="text-xl font-bold text-emerald-800 flex items-center gap-2">
-          <span class="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-sm">🎓</span>
-          Al-Kausar Classes Portal
-        </h1>
-        <p class="text-xs text-emerald-600 font-medium mt-0.5">Zoom Links, Class Timetable & Academic Management</p>
-      </div>
-      
-      <!-- Navigation Buttons -->
-      <div class="flex gap-2">
-        <button onclick="showTab('teachersTab')" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
-          👨‍🏫 ဆရာများ စာရင်း
-        </button>
-        <button onclick="showTab('classSearchTab')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
-          🔍 အတန်းချိန် ရှာရန်
-        </button>
-        <button onclick="showTab('adminTab')" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
-          ⚙️ စာသင်နှစ်စ ခွဲဝေမှု
-        </button>
-      </div>
-    </header>
-
-    <!-- TAB 1: မူရင်း ဆရာများ စာရင်း ကြည့်ရန် (Teachers List) -->
-    <section id="teachersTab" class="no-print bg-white rounded-2xl p-5 shadow-sm border border-emerald-100 space-y-4">
-      <div class="flex justify-between items-center border-b border-emerald-100 pb-3">
-        <h2 class="text-sm font-bold text-emerald-900 flex items-center gap-2">
-          👨‍🏫 ဆရာ/မများ စာရင်းနှင့် Zoom သင်တန်းခန်းမများ
-        </h2>
-        <input type="text" id="teacherSearchInput" onkeyup="filterTeachers()" placeholder="ဆရာအမည် ရှာရန်..." 
-               class="p-2 border border-emerald-200 rounded-xl text-xs bg-emerald-50/30 outline-none focus:border-emerald-500 w-48">
-      </div>
-
-      <!-- Teachers Card Grid -->
-      <div id="teachersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Sample Teacher Card (JavaScript ဖြင့် Firebase မှ ဆွဲထုတ်ပြသနိုင်ပါသည်) -->
-        <div class="teacher-card bg-emerald-50/40 p-4 rounded-xl border border-emerald-100 space-y-2">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="font-bold text-sm text-emerald-950">ဆရာ ဦးအေး</h3>
-              <p class="text-xs text-emerald-700">မြန်မာစာ / Grade-5</p>
+<body class="min-h-screen p-3 md:p-6 font-mm">
+    <div class="w-full max-w-2xl mx-auto">
+        <div id="homePage" class="space-y-4">
+            <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-bold text-islamic-800 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-xl bg-islamic-600 text-white flex items-center justify-center text-sm"><i class="fa-solid fa-graduation-cap"></i></span>
+                        Al-Kausar Classes
+                    </h1>
+                    <p class="text-xs text-islamic-500 font-medium mt-1">Zoom Quick Launcher & Schedule</p>
+                </div>
+                <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 hover:bg-gold-600 text-white rounded-xl text-xs font-semibold shadow-sm btn-glow">+ အသစ်ထည့်ရန်</button>
             </div>
-            <span class="px-2 py-0.5 bg-emerald-200 text-emerald-800 rounded text-[10px] font-bold">Active</span>
-          </div>
-          <div class="text-xs space-y-1 text-gray-600 pt-1">
-            <p><strong>Meeting ID:</strong> 123 456 7890</p>
-            <p><strong>Passcode:</strong> 12345</p>
-          </div>
-          <a href="#" target="_blank" class="block w-full text-center py-2 bg-emerald-700 text-white rounded-lg text-xs font-bold hover:bg-emerald-800 transition-all">
-            🎥 Zoom Class သို့ ဝင်ရန်
-          </a>
-        </div>
-      </div>
-    </section>
 
-    <!-- TAB 2: မူရင်း အတန်းချိန် ရှာသည့် စနစ် (Class Timetable Finder) -->
-    <section id="classSearchTab" class="no-print hidden bg-white rounded-2xl p-5 shadow-sm border border-emerald-100 space-y-4">
-      <div class="border-b border-emerald-100 pb-3">
-        <h2 class="text-sm font-bold text-emerald-900 flex items-center gap-2">
-          🔍 အတန်းအလိုက် အချိန်ဇယား ရှာဖွေခြင်း
-        </h2>
-      </div>
+            <div class="bg-gradient-to-br from-white to-gold-50/50 rounded-2xl p-4 border border-gold-200/80">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-gold-700"><i class="fa-solid fa-bullhorn text-gold-500 mr-1"></i>ကျောင်းကြေညာချက်</span>
+                    <button onclick="openAnnouncementModal()" class="text-[11px] text-gold-600 hover:underline font-medium"><i class="fa-solid fa-pen-to-square"></i> ပြင်ရန်</button>
+                </div>
+                <p id="announcementText" class="text-xs text-islamic-900 bg-white/60 p-3 rounded-xl border border-gold-100/80">ကြေညာချက် ရယူနေပါသည်...</p>
+            </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div>
-          <label class="block text-xs font-bold text-emerald-800 mb-1">အတန်း</label>
-          <select id="searchGrade" class="w-full p-2.5 border border-emerald-200 rounded-xl text-xs bg-emerald-50/20 outline-none">
-            <option value="">-- အတန်း ရွေးပါ --</option>
+            <div class="bg-white/95 p-4 rounded-2xl border border-islamic-100 shadow-sm">
+                <label class="block text-xs font-bold text-islamic-700 mb-2"><i class="fa-solid fa-magnifying-glass text-gold-500 mr-1"></i> အတန်း/ဆရာ ရှာဖွေရန်</label>
+                <div class="flex gap-2">
+                    <input type="text" id="homeSearchInput" onkeypress="if(event.key==='Enter') handleSearch()" placeholder="ဆရာအမည် သို့မဟုတ် အတန်း..." class="flex-1 p-2 border border-islamic-200 rounded-xl text-xs focus:outline-none focus:border-islamic-500">
+                    <button onclick="handleSearch()" class="px-4 py-2 bg-islamic-600 hover:bg-islamic-700 text-white rounded-xl text-xs font-semibold">ရှာမည်</button>
+                </div>
+            </div>
 
-            <option value="Grade-1">Grade-1</option>
-            <option value="Grade-2">Grade-2</option>
-            <option value="Grade-3">Grade-3</option>
-            <option value="Grade-4">Grade-4</option>
-            <option value="Grade-5">Grade-5</option>
-          </select>
-        </div>
+            <div class="ornament-divider my-4"></div>
 
-        <div>
-          <label class="block text-xs font-bold text-emerald-800 mb-1">တန်းခွဲ</label>
-          <select id="searchSection" class="w-full p-2.5 border border-emerald-200 rounded-xl text-xs bg-emerald-50/20 outline-none">
-            <option value="A">Section A</option>
-            <option value="B">Section B</option>
-            <option value="C">Section C</option>
-          </select>
-        </div>
+            <button onclick="navigateTo('teachers')" class="w-full p-4 bg-islamic-700 hover:bg-islamic-800 text-white rounded-2xl font-bold text-sm flex items-center justify-between shadow-lg btn-glow">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-chalkboard-user text-gold-300"></i> ဆရာများစာရင်း ကြည့်ရန်</span>
+                <i class="fa-solid fa-arrow-right text-gold-300"></i>
+            </button>
 
-        <div class="flex items-end">
-          <button onclick="searchClassTimetable()" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow transition-all">
-            ⏰ အချိန်ဇယား ကြည့်မည်
-          </button>
-        </div>
-      </div>
+            <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3">
+                <h3 class="text-xs font-bold text-islamic-800 border-b border-islamic-100 pb-2"><i class="fa-solid fa-calendar-day text-gold-500 mr-1"></i> အတန်းအလိုက် အချိန်ဇယား ရှာရန်</h3>
+                <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-4">
+                        <label class="block text-[10px] font-bold text-islamic-700 mb-1">အတန်း</label>
+                        <select id="filterGradeSelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
+                            <option value="">- ရွေးပါ -</option>
+                            <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
+                            <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
+                            <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-[10px] font-bold text-islamic-700 mb-1">တန်းခွဲ</label>
+                        <select id="filterSectionSelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs text-center font-semibold">
+                            <option value="">အားလုံး</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-[10px] font-bold text-islamic-700 mb-1">နေ့ရက်</label>
+                        <select id="filterDaySelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
+                            <option value="sat">စနေ</option><option value="sun">တနင်္ဂနွေ</option><option value="mon">တနင်္လာ</option>
+                            <option value="tue">အင်္ဂါ</option><option value="wed">ဗုဒ္ဓဟူး</option><option value="thu">ကြာသပတေး</option><option value="fri">သောကြာ</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="searchClassSchedule()" class="w-full py-2 bg-gold-500 hover:bg-gold-600 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-clock mr-1"></i> အချိန်ဇယား ကြည့်မည်</button>
 
-      <!-- Result Table -->
-      <div id="classResultArea" class="hidden pt-3 border-t border-emerald-100 space-y-3">
-        <div class="flex justify-between items-center">
-          <h3 id="classResultTitle" class="text-xs font-bold text-emerald-950"></h3>
-          <button onclick="window.print()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow">
-            🖨️ A4 Print ထုတ်မည်
-          </button>
-        </div>
-
-        <div class="overflow-x-auto rounded-xl border border-emerald-100">
-          <table class="w-full text-xs text-center border-collapse">
-            <thead class="bg-emerald-800 text-white font-semibold">
-              <tr>
-                <th class="p-2 border border-emerald-700">နေ့ရက် / အချိန်</th>
-                <th class="p-2 border border-emerald-700">1 ချိန်</th>
-                <th class="p-2 border border-emerald-700">2 ချိန်</th>
-                <th class="p-2 border border-emerald-700">3 ချိန်</th>
-                <th class="p-2 border border-emerald-700">4 ချိန်</th>
-                <th class="p-2 border border-emerald-700">5 ချိန်</th>
-                <th class="p-2 border border-emerald-700">6 ချိန်</th>
-              </tr>
-            </thead>
-            <tbody id="classTableBody" class="bg-white divide-y divide-emerald-50">
-              <!-- Search Output -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 3: နှစ်စ ဘာသာရပ် ခွဲဝေမှုနှင့် စီမံခန့်ခွဲမှု (Academic Admin) -->
-    <section id="adminTab" class="no-print hidden bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4">
-      <div class="border-b border-amber-100 pb-3">
-        <h2 class="text-sm font-bold text-amber-900 flex items-center gap-2">
-          📚 စာသင်နှစ်အစ - ဘာသာရပ်နှင့် ဆရာ ခွဲဝေခြင်း
-        </h2>
-      </div>
-
-      <form id="allocationForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-        <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">ဆရာ/မ အမည်</label>
-          <input type="text" id="allocTeacher" placeholder="ဥပမာ - ဦးအေး" required class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">ဘာသာရပ်</label>
-          <input type="text" id="allocSubject" placeholder="ဥပမာ - မြန်မာစာ" required class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">အတန်း</label>
-          <input type="text" id="allocClass" placeholder="ဥပမာ - Grade-5" required class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">ချိန်ရေ</label>
-          <input type="number" id="allocPeriods" placeholder="ဥပမာ - 5" min="1" required class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none">
+                <div id="classTimetableResult" class="hidden mt-3 pt-3 border-t border-islamic-100">
+                    <h4 id="classTimetableTitle" class="text-xs font-bold text-islamic-800 mb-2"></h4>
+                    <div class="overflow-x-auto rounded-xl border border-islamic-200">
+                        <table class="w-full text-left border-collapse">
+                            <thead><tr class="bg-islamic-600 text-white text-[11px]"><th class="px-3 py-2 text-center font-bold">အချိန်</th><th class="px-3 py-2 font-bold">ဆရာ</th><th class="px-3 py-2 font-bold">လင့်ခ်</th></tr></thead>
+                            <tbody id="classTimetableBody" class="bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="sm:col-span-2 md:col-span-4 text-right pt-2">
-          <button type="button" onclick="saveAllocation()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow">
-            💾 ခွဲဝေမှု သိမ်းဆည်းမည်
-          </button>
-        </div>
-      </form>
+        <div id="teachersPage" class="space-y-3 hidden">
+            <div class="bg-white/95 rounded-2xl p-3 shadow-sm border border-islamic-100 flex items-center justify-between">
+                <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200 hover:bg-islamic-100"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-xs font-bold text-islamic-800">ဆရာများ စာရင်းနှင့် အချိန်ဇယား</h2>
+                <button onclick="openAddModal()" class="px-2.5 py-1.5 bg-gold-500 text-white rounded-xl text-xs font-bold btn-glow">+ အသစ်</button>
+            </div>
 
-      <!-- Allocation Table -->
-      <div class="pt-2">
-        <h3 class="text-xs font-bold text-gray-700 mb-2">📋 ခွဲဝေပြီးစီးမှု စာရင်း</h3>
-        <div class="overflow-x-auto rounded-xl border border-gray-100">
-          <table class="w-full text-xs text-center border-collapse">
-            <thead class="bg-gray-800 text-white">
-              <tr>
-                <th class="p-2">ဆရာ/မ</th>
-                <th class="p-2">ဘာသာရပ်</th>
-                <th class="p-2">အတန်း</th>
-                <th class="p-2">ချိန်ရေ</th>
-                <th class="p-2">လုပ်ဆောင်ချက်</th>
-              </tr>
-            </thead>
-            <tbody id="allocationList" class="bg-white divide-y divide-gray-100"></tbody>
-          </table>
+            <input type="text" id="teacherSearchInput" oninput="renderMeetings()" placeholder="ဆရာအမည်၊ အတန်း သို့မဟုတ် ID ဖြင့် ရှာရန်" class="w-full p-3 rounded-xl border border-islamic-200 focus:outline-none focus:border-islamic-500">
+            <div id="meetingContainer" class="space-y-2.5 pt-1"></div>
         </div>
-      </div>
-    </section>
-
-    <!-- Printable Layout (A4) -->
-    <div id="printArea" class="hidden print:block p-4 bg-white">
-      <div class="text-center mb-4">
-        <h1 id="printTitle" class="text-lg font-bold">Al-Kausar Class Timetable</h1>
-        <p id="printSubTitle" class="text-xs mt-1"></p>
-      </div>
-      <table class="w-full border-collapse border border-black text-xs text-center">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="border border-black p-2">နေ့ရက် / အချိန်</th>
-            <th class="border border-black p-2">1 ချိန်</th>
-            <th class="border border-black p-2">2 ချိန်</th>
-            <th class="border border-black p-2">3 ချိန်</th>
-            <th class="border border-black p-2">4 ချိန်</th>
-            <th class="border border-black p-2">5 ချိန်</th>
-            <th class="border border-black p-2">6 ချိန်</th>
-          </tr>
-        </thead>
-        <tbody id="printTableBody"></tbody>
-      </table>
+    </div>
+    <div id="announcementModal" class="fixed inset-0 bg-islamic-950/50 hidden flex items-center justify-center p-3 z-50">
+        <div class="bg-white rounded-3xl p-5 w-full max-w-md shadow-xl">
+            <h3 class="text-sm font-bold text-islamic-800 mb-2">ကြေညာချက် ပြင်ဆင်ရန်</h3>
+            <textarea id="announcementInput" rows="4" class="w-full p-2.5 border border-islamic-200 rounded-xl text-xs mb-3 focus:outline-none focus:border-islamic-500"></textarea>
+            <div class="flex justify-end gap-2">
+                <button onclick="document.getElementById('announcementModal').classList.add('hidden')" class="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800">မလုပ်တော့ပါ</button>
+                <button onclick="saveAnnouncement()" class="px-4 py-1.5 bg-islamic-600 hover:bg-islamic-700 text-white rounded-xl text-xs font-semibold">သိမ်းမည်</button>
+            </div>
+        </div>
     </div>
 
-  </div>
+    <div id="addModal" onclick="if(event.target.id==='addModal') toggleModal(false)" class="fixed inset-0 bg-islamic-950/50 hidden flex items-center justify-center p-3 z-50 overflow-y-auto">
+        <div class="bg-white rounded-3xl p-5 w-full max-w-md my-8 max-h-[90vh] overflow-y-auto relative shadow-xl">
+            <h2 id="modalTitle" class="text-base font-bold text-islamic-800 mb-3">အတန်းအသစ် ထည့်ရန်</h2>
+            <input type="hidden" id="editKey">
+            <div class="space-y-3">
+                <input type="text" id="teacherName" placeholder="ဆရာအမည် *" class="w-full p-2.5 border border-islamic-200 rounded-xl text-xs focus:outline-none focus:border-islamic-500">
+                <input type="text" id="zoomLink" placeholder="Zoom Link *" class="w-full p-2.5 border border-islamic-200 rounded-xl text-xs focus:outline-none focus:border-islamic-500">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="meetingId" placeholder="Meeting ID" class="p-2.5 border border-islamic-200 rounded-xl text-xs focus:outline-none focus:border-islamic-500">
+                    <input type="text" id="teacherPhone" placeholder="ဖုန်းနံပါတ်" class="p-2.5 border border-islamic-200 rounded-xl text-xs focus:outline-none focus:border-islamic-500">
+                </div>
 
-  <!-- JavaScript -->
-  <script>
-    let allocations = JSON.parse(localStorage.getItem('subjectAllocations')) || [];
+                <div class="border-t border-islamic-100 pt-3">
+                    <label class="block text-[11px] font-bold text-gold-700 mb-2">အချိန်ဇယား ပြင်ရန်</label>
+                    <div class="flex gap-1 overflow-x-auto pb-2 scrollbar-none mb-2">
+                        <button id="tab-sat" onclick="switchModalDay('sat')" class="px-3 py-1 bg-islamic-600 text-white rounded-xl text-xs">စနေ</button>
+                        <button id="tab-sun" onclick="switchModalDay('sun')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">တနင်္ဂနွေ</button>
+                        <button id="tab-mon" onclick="switchModalDay('mon')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">တနင်္လာ</button>
+                        <button id="tab-tue" onclick="switchModalDay('tue')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">အင်္ဂါ</button>
+                        <button id="tab-wed" onclick="switchModalDay('wed')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ဗုဒ္ဓဟူး</button>
+                        <button id="tab-thu" onclick="switchModalDay('thu')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ကြာသပတေး</button>
+                        <button id="tab-fri" onclick="switchModalDay('fri')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">သောကြာ</button>
+                    </div>
+                    <div class="space-y-2 max-h-[220px] overflow-y-auto">
+                        <script>
+                            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+                                document.write(`
+                                    <div class="bg-gray-50 p-2 rounded-xl border border-islamic-100">
+                                        <span class="text-[10px] font-bold text-islamic-700 block mb-1">${i} ချိန်မြောက်</span>
+                                        <div class="grid grid-cols-5 gap-1.5">
+                                            <select id="p${i}_grade" onchange="handleGradeChange(${i})" class="col-span-3 p-1.5 border border-islamic-200 rounded-lg text-xs">
+                                                <option value="">- မရှိ -</option>
+                                                <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
+                                                <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
+                                                <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            <select id="p${i}_sec" class="col-span-2 p-1.5 border border-islamic-200 rounded-lg text-xs font-bold text-center">
+                                                <option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                                            </select>
+                                        </div>
+                                        <input type="text" id="p${i}_custom" placeholder="အခြားအတန်း ရိုက်ပါ..." class="hidden w-full mt-1 p-1 border border-islamic-200 rounded-lg text-xs">
+                                    </div>
+                                `);
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+                <button onclick="toggleModal(false)" class="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800">မလုပ်တော့ပါ</button>
+                <button onclick="saveMeeting()" class="px-4 py-1.5 bg-islamic-600 hover:bg-islamic-700 text-white rounded-xl text-xs font-semibold">သိမ်းမည်</button>
+            </div>
+        </div>
+    </div>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      renderAllocations();
-    });
+    <footer class="text-center py-5 text-[10px] text-islamic-600/50">
+        Al-Kausar Classes · v2.0.0
+    </footer>
 
-    // Tab Switching System
-    function showTab(tabId) {
-      document.getElementById('teachersTab').classList.add('hidden');
-      document.getElementById('classSearchTab').classList.add('hidden');
-      document.getElementById('adminTab').classList.add('hidden');
-
-      document.getElementById(tabId).classList.remove('hidden');
-    }
-
-    // Teacher Filter
-    function filterTeachers() {
-      const input = document.getElementById('teacherSearchInput').value.toLowerCase();
-      const cards = document.getElementsByClassName('teacher-card');
-
-      for (let card of cards) {
-        const text = card.innerText.toLowerCase();
-        card.style.display = text.includes(input) ? "block" : "none";
-      }
-    }
-
-    // Save Subject Allocation
-    function saveAllocation() {
-      const teacher = document.getElementById('allocTeacher').value.trim();
-      const subject = document.getElementById('allocSubject').value.trim();
-      const className = document.getElementById('allocClass').value.trim();
-      const periods = document.getElementById('allocPeriods').value;
-
-      if (!teacher || !subject || !className || !periods) {
-        alert('အချက်အလက်များ ပြည့်စုံစွာ ဖြည့်ပါ');
-        return;
-      }
-
-      allocations.push({ id: Date.now(), teacher, subject, className, periods });
-      localStorage.setItem('subjectAllocations', JSON.stringify(allocations));
-      document.getElementById('allocationForm').reset();
-      renderAllocations();
-    }
-
-    function renderAllocations() {
-      const tbody = document.getElementById('allocationList');
-      tbody.innerHTML = '';
-
-      if (allocations.length === 0) {
-        tbody.innerHTML = `<tr><td colSpan="5" class="p-3 text-gray-400 italic">ခွဲဝေမှု စာရင်း မရှိသေးပါ</td></tr>`;
-        return;
-      }
-
-      allocations.forEach(item => {
-        tbody.innerHTML += `
-          <tr>
-            <td class="p-2 font-semibold text-gray-800">${item.teacher}</td>
-            <td class="p-2 text-gray-600">${item.subject}</td>
-            <td class="p-2 font-bold text-amber-700">${item.className}</td>
-            <td class="p-2">${item.periods} ချိန်</td>
-            <td class="p-2"><button onclick="deleteAllocation(${item.id})" class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px]">ဖျက်မည်</button></td>
-          </tr>
-        `;
-      });
-    }
-
-    function deleteAllocation(id) {
-      allocations = allocations.filter(i => i.id !== id);
-      localStorage.setItem('subjectAllocations', JSON.stringify(allocations));
-      renderAllocations();
-    }
-
-    // Search Timetable
-    function searchClassTimetable() {
-      const grade = document.getElementById('searchGrade').value;
-      const section = document.getElementById('searchSection').value;
-
-      if (!grade) {
-        alert("အတန်း ရွေးပါ");
-        return;
-      }
-
-      const fullClass = `${grade} (${section})`;
-      document.getElementById('classResultTitle').innerText = `${fullClass} အချိန်ဇယား`;
-      document.getElementById('printTitle').innerText = `Al-Kausar Class Timetable`;
-      document.getElementById('printSubTitle').innerText = `အတန်း : ${fullClass}`;
-
-      const days = ["စနေ", "တနင်္ဂနွေ", "တနင်္လာ", "အင်္ဂါ", "ဗုဒ္ဓဟူး", "ကြာသပတေး", "သောကြာ"];
-      let rows = '';
-
-      days.forEach(day => {
-        rows += `<tr><td class="p-2 font-bold bg-emerald-50/50 border border-emerald-100">${day}</td>`;
-        for (let p = 1; p <= 6; p++) {
-          const matched = allocations.find(a => a.className.toLowerCase().includes(grade.toLowerCase()));
-          const info = matched ? `<b>${matched.subject}</b><br><span class="text-[10px] text-gray-500">(${matched.teacher})</span>` : '-';
-          rows += `<td class="p-2 border border-emerald-100">${info}</td>`;
-        }
-        rows += `</tr>`;
-      });
-
-      document.getElementById('classTableBody').innerHTML = rows;
-      document.getElementById('printTableBody').innerHTML = rows;
-      document.getElementById('classResultArea').classList.remove('hidden');
-    }
-  </script>
 </body>
 </html>
