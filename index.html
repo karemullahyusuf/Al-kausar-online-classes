@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Al-Kausar Classes | Zoom Launcher v2</title>
-    <meta name="app-version" content="2.0.0">
-
+    <title>Al-Kausar Classes | Zoom Launcher</title>
+    
     <!-- PWA & Mobile Optimization Setup -->
     <meta name="theme-color" content="#1a4833">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="data:application/manifest+json;utf8,{\"name\":\"Al-Kausar Classes\",\"short_name\":\"Al-Kausar\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"%23f0f9f4\",\"theme_color\":\"%231a4833\",\"icons\":[{\"src\":\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/svgs/solid/graduation-cap.svg\",\"sizes\":\"192x192\",\"type\":\"image/svg+xml\"}]}">
-
+    
+    <!-- External Tailwind CSS and Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    
     <script>
         tailwind.config = {
             theme: {
@@ -38,11 +38,11 @@
         }
     </script>
 
-    <style>
+        <style>
         body {
             font-family: 'Noto Sans Myanmar', 'Padauk', sans-serif;
             background-color: #f0f9f4;
-            background-image:
+            background-image: 
                 radial-gradient(circle at 25% 25%, rgba(54, 141, 95, 0.06) 0%, transparent 45%),
                 radial-gradient(circle at 75% 75%, rgba(212, 148, 26, 0.04) 0%, transparent 45%),
                 url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23368d5f' stroke-opacity='0.06' stroke-width='1'%3E%3Cpath d='M30 0 L60 30 L30 60 L0 30 Z'/%3E%3Cpath d='M30 15 L45 30 L30 45 L15 30 Z'/%3E%3C/g%3E%3C/svg%3E");
@@ -53,7 +53,7 @@
         }
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
-
+        
         .ornament-divider {
             height: 2px;
             background: linear-gradient(90deg, transparent, #d4941a 50%, transparent);
@@ -84,23 +84,12 @@
         a, .text-gold-600, .text-gold-500 { color: #b86f14; }
         h1, h2, h3 { color: #0f4031; }
     </style>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, onValue, push, remove, update, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // ============================================================
-        // APP CONFIGURATION — Version 2.0
-        // ============================================================
-        const APP_CONFIG = Object.freeze({
-            version: "2.0.0",
-            cacheKeys: {
-                meetings: "alkausar_meetings_cache",
-                announcement: "alkausar_announcement_cache"
-            },
-            adminPassword: "55155",
-            maxPeriods: 8
-        });
-
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDrNrQj8RzKy7UHNifSY7jpeSw1qtSeDOI",
             authDomain: "jki-zoom-links.firebaseapp.com",
@@ -122,40 +111,10 @@
         window.expandedCards = {};
         window.activeModalDay = 'sat';
 
-        const { meetings: LOCAL_STORAGE_KEY, announcement: ANNOUNCEMENT_CACHE_KEY } = APP_CONFIG.cacheKeys;
+        const LOCAL_STORAGE_KEY = 'alkausar_meetings_cache';
+        const ANNOUNCEMENT_CACHE_KEY = 'alkausar_announcement_cache';
 
-        function renderPeriodInputs() {
-            const container = document.getElementById('periodInputsContainer');
-            if (!container) return;
-            container.innerHTML = '';
-            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
-                const div = document.createElement('div');
-                div.className = "bg-gray-50 p-2 rounded-xl border border-islamic-100";
-                div.innerHTML = `
-                    <span class="text-[10px] font-bold text-islamic-700 block mb-1">${i} ချိန်မြောက်</span>
-                    <div class="grid grid-cols-5 gap-1.5">
-                        <select id="p${i}_grade" onchange="handleGradeChange(${i})" class="col-span-3 p-1.5 border border-islamic-200 rounded-lg text-xs">
-                            <option value="">- မရှိ -</option>
-                            <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
-                            <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
-                            <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <select id="p${i}_sec" class="col-span-2 p-1.5 border border-islamic-200 rounded-lg text-xs font-bold text-center">
-                            <option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-                        </select>
-                    </div>
-                    <input type="text" id="p${i}_custom" placeholder="အခြားအတန်း ရိုက်ပါ..." class="hidden w-full mt-1 p-1 border border-islamic-200 rounded-lg text-xs">
-                `;
-                container.appendChild(div);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderPeriodInputs();
-            loadCachedData();
-        });
-
+        // Load data from cache to ensure fast initial rendering
         function loadCachedData() {
             try {
                 const cachedMeetings = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -201,6 +160,9 @@
             return '';
         }
 
+        loadCachedData();
+
+        // Listen for Realtime Database announcement changes
         onValue(announcementRef, (snapshot) => {
             const data = snapshot.val();
             const textEl = document.getElementById('announcementText');
@@ -212,6 +174,7 @@
             }
         });
 
+        // Listen for Realtime Database meetings changes
         onValue(meetingsRef, (snapshot) => {
             meetingsData = snapshot.val() || {};
             try {
@@ -289,7 +252,7 @@
 
                 if (daySchedule && Object.keys(daySchedule).length > 0) {
                     let hasPeriods = false, tableHeaders = '', tableCells = '';
-                    for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+                    for (let i = 1; i <= 8; i++) {
                         const formattedText = formatPeriodText(daySchedule[`p${i}`]);
                         if (formattedText) {
                             hasPeriods = true;
@@ -352,7 +315,10 @@
             const tableBody = document.getElementById('classTimetableBody');
             const resultTitle = document.getElementById('classTimetableTitle');
 
-            if (!grade) { alert("ကျေးဇူးပြု၍ အတန်း ရွေးချယ်ပါ။"); return; }
+            if (!grade) {
+                alert("ကျေးဇူးပြု၍ အတန်း ရွေးချယ်ပါ။");
+                return;
+            }
 
             const dayObj = daysList.find(d => d.id === day);
             const secLabel = (section && section !== '-') ? ` (${section})` : '';
@@ -360,7 +326,7 @@
             tableBody.innerHTML = '';
             let foundAny = false;
 
-            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+            for (let i = 1; i <= 8; i++) {
                 let teachersForPeriod = [];
                 Object.keys(meetingsData).forEach(key => {
                     const teacher = meetingsData[key];
@@ -398,7 +364,7 @@
         window.saveAnnouncement = function() {
             const text = document.getElementById('announcementInput').value.trim();
             if (!text) return;
-            if (prompt("Admin Password ရိုက်ထည့်ပါ:") === APP_CONFIG.adminPassword) {
+            if (prompt("Admin Password ရိုက်ထည့်ပါ:") === "55155") {
                 set(announcementRef, { text }).then(() => document.getElementById('announcementModal').classList.add('hidden'));
             } else alert("Password မမှန်ပါ။");
         };
@@ -418,7 +384,7 @@
             });
 
             const dayData = window.tempSchedule[dayId] || {};
-            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+            for (let i = 1; i <= 8; i++) {
                 const pVal = dayData[`p${i}`], g = document.getElementById(`p${i}_grade`), s = document.getElementById(`p${i}_sec`), c = document.getElementById(`p${i}_custom`);
                 if (!pVal) { g.value = ''; s.value = '-'; c.value = ''; c.classList.add('hidden'); }
                 else if (typeof pVal === 'string') { g.value = 'Other'; s.value = '-'; c.value = pVal; c.classList.remove('hidden'); }
@@ -436,7 +402,7 @@
         function saveCurrentDayToTemp() {
             const dayId = window.activeModalDay;
             if (!window.tempSchedule[dayId]) window.tempSchedule[dayId] = {};
-            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+            for (let i = 1; i <= 8; i++) {
                 const g = document.getElementById(`p${i}_grade`).value, s = document.getElementById(`p${i}_sec`).value, c = document.getElementById(`p${i}_custom`).value.trim();
                 if (g === 'Other' && c) window.tempSchedule[dayId][`p${i}`] = { grade: c, section: s, isOther: true };
                 else if (g && g !== 'Other') window.tempSchedule[dayId][`p${i}`] = { grade: g, section: s };
@@ -453,7 +419,7 @@
             const phone = document.getElementById('teacherPhone').value.trim();
 
             if (!name || !link) { alert("ဆရာအမည်နှင့် Zoom Link ထည့်ပါ။"); return; }
-            if (prompt("Admin Password ရိုက်ထည့်ပါ:") !== APP_CONFIG.adminPassword)
+            if (prompt("Admin Password ရိုက်ထည့်ပါ:") !== "55155") { alert("Password မမှန်ပါ။"); return; }
 
             const payload = { name, link, idNum, phone, weeklySchedule: window.tempSchedule };
             if (editId) update(ref(db, `meetings/${editId}`), payload).then(() => window.toggleModal(false));
@@ -486,7 +452,7 @@
         };
 
         window.deleteMeeting = function(key) {
-            if (prompt("Admin Password ရိုက်ထည့်ပါ:") === APP_CONFIG.adminPassword) {
+            if (prompt("Admin Password ရိုက်ထည့်ပါ:") === "55155") {
                 if (confirm("ဖျက်ရန် သေချာပါသလား။")) remove(ref(db, `meetings/${key}`));
             } else alert("Password မမှန်ပါ။");
         };
@@ -494,6 +460,7 @@
 </head>
 <body class="min-h-screen p-3 md:p-6 font-mm">
     <div class="w-full max-w-2xl mx-auto">
+        <!-- Home Page -->
         <div id="homePage" class="space-y-4">
             <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between">
                 <div>
@@ -506,6 +473,7 @@
                 <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 hover:bg-gold-600 text-white rounded-xl text-xs font-semibold shadow-sm btn-glow">+ အသစ်ထည့်ရန်</button>
             </div>
 
+            <!-- Announcement Container -->
             <div class="bg-gradient-to-br from-white to-gold-50/50 rounded-2xl p-4 border border-gold-200/80">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-bold text-gold-700"><i class="fa-solid fa-bullhorn text-gold-500 mr-1"></i>ကျောင်းကြေညာချက်</span>
@@ -514,6 +482,7 @@
                 <p id="announcementText" class="text-xs text-islamic-900 bg-white/60 p-3 rounded-xl border border-gold-100/80">ကြေညာချက် ရယူနေပါသည်...</p>
             </div>
 
+            <!-- Class & Teacher Search Bar -->
             <div class="bg-white/95 p-4 rounded-2xl border border-islamic-100 shadow-sm">
                 <label class="block text-xs font-bold text-islamic-700 mb-2"><i class="fa-solid fa-magnifying-glass text-gold-500 mr-1"></i> အတန်း/ဆရာ ရှာဖွေရန်</label>
                 <div class="flex gap-2">
@@ -524,11 +493,13 @@
 
             <div class="ornament-divider my-4"></div>
 
+            <!-- Navigation Button to Teacher List -->
             <button onclick="navigateTo('teachers')" class="w-full p-4 bg-islamic-700 hover:bg-islamic-800 text-white rounded-2xl font-bold text-sm flex items-center justify-between shadow-lg btn-glow">
                 <span class="flex items-center gap-2"><i class="fa-solid fa-chalkboard-user text-gold-300"></i> ဆရာများစာရင်း ကြည့်ရန်</span>
                 <i class="fa-solid fa-arrow-right text-gold-300"></i>
             </button>
 
+            <!-- Schedule Filter Search Section -->
             <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3">
                 <h3 class="text-xs font-bold text-islamic-800 border-b border-islamic-100 pb-2"><i class="fa-solid fa-calendar-day text-gold-500 mr-1"></i> အတန်းအလိုက် အချိန်ဇယား ရှာရန်</h3>
                 <div class="grid grid-cols-12 gap-2">
@@ -569,6 +540,7 @@
             </div>
         </div>
 
+        <!-- Teachers & Meetings List Page -->
         <div id="teachersPage" class="space-y-3 hidden">
             <div class="bg-white/95 rounded-2xl p-3 shadow-sm border border-islamic-100 flex items-center justify-between">
                 <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200 hover:bg-islamic-100"><i class="fa-solid fa-arrow-left"></i></button>
@@ -581,6 +553,7 @@
         </div>
     </div>
 
+    <!-- Announcement Modal -->
     <div id="announcementModal" class="fixed inset-0 bg-islamic-950/50 hidden flex items-center justify-center p-3 z-50">
         <div class="bg-white rounded-3xl p-5 w-full max-w-md shadow-xl">
             <h3 class="text-sm font-bold text-islamic-800 mb-2">ကြေညာချက် ပြင်ဆင်ရန်</h3>
@@ -592,6 +565,7 @@
         </div>
     </div>
 
+    <!-- Add/Edit Class Schedule Modal -->
     <div id="addModal" onclick="if(event.target.id==='addModal') toggleModal(false)" class="fixed inset-0 bg-islamic-950/50 hidden flex items-center justify-center p-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-3xl p-5 w-full max-w-md my-8 max-h-[90vh] overflow-y-auto relative shadow-xl">
             <h2 id="modalTitle" class="text-base font-bold text-islamic-800 mb-3">အတန်းအသစ် ထည့်ရန်</h2>
@@ -615,7 +589,30 @@
                         <button id="tab-thu" onclick="switchModalDay('thu')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ကြာသပတေး</button>
                         <button id="tab-fri" onclick="switchModalDay('fri')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">သောကြာ</button>
                     </div>
-                    <div id="periodInputsContainer" class="space-y-2 max-h-[220px] overflow-y-auto"></div>
+                    <div class="space-y-2 max-h-[220px] overflow-y-auto">
+                        <script>
+                            for (let i = 1; i <= 8; i++) {
+                                document.write(`
+                                    <div class="bg-gray-50 p-2 rounded-xl border border-islamic-100">
+                                        <span class="text-[10px] font-bold text-islamic-700 block mb-1">${i} ချိန်မြောက်</span>
+                                        <div class="grid grid-cols-5 gap-1.5">
+                                            <select id="p${i}_grade" onchange="handleGradeChange(${i})" class="col-span-3 p-1.5 border border-islamic-200 rounded-lg text-xs">
+                                                <option value="">- မရှိ -</option>
+                                                <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
+                                                <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
+                                                <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            <select id="p${i}_sec" class="col-span-2 p-1.5 border border-islamic-200 rounded-lg text-xs font-bold text-center">
+                                                <option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                                            </select>
+                                        </div>
+                                        <input type="text" id="p${i}_custom" placeholder="အခြားအတန်း ရိုက်ပါ..." class="hidden w-full mt-1 p-1 border border-islamic-200 rounded-lg text-xs">
+                                    </div>
+                                `);
+                            }
+                        </script>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-end gap-2 mt-4">
@@ -625,10 +622,34 @@
         </div>
     </div>
 
-    <footer class="text-center py-5 text-[10px] text-islamic-600/50">
-        Al-Kausar Classes · v2.0.0
-    </footer>
-
+    <!-- Inline Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'alkausar-v1';
+                    const urlsToCache = [
+                        'https://cdn.tailwindcss.com',
+                        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
+                        'https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap'
+                    ];
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+                        );
+                    });
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request).then(response => response || fetch(event.request))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.warn('SW Register Failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>
-                    
+        
