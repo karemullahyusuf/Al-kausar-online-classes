@@ -3,61 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Al-Kausar Academic & Timetable Portal</title>
+  <title>Al-Kausar Academic Portal</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Google Fonts for Myanmar Text -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
     body {
       font-family: 'Pyidaungsu', sans-serif;
-      background-color: #f4f7f6;
-      color: #1a362b;
+      background-color: #f0f9f4;
+      color: #133827;
     }
-
-    /* Print Setup */
     @media print {
       .no-print { display: none !important; }
-      .print-area { display: block !important; }
-      body { background: white !important; }
+      .print-only { display: block !important; }
+      body { background: white !important; color: black !important; }
       table { width: 100% !important; border-collapse: collapse !important; }
-      th, td { border: 1px solid #000 !important; padding: 8px !important; text-align: center !important; }
+      th, td { border: 1px solid #000 !important; padding: 6px !important; text-align: center !important; }
     }
   </style>
 </head>
 <body class="p-3 md:p-6 min-h-screen">
 
-  <div class="max-w-3xl mx-auto space-y-5">
+  <div class="max-w-4xl mx-auto space-y-5">
 
-    <!-- 1. Header (Clean & Compact) -->
-    <header class="no-print bg-emerald-800 text-white rounded-2xl p-5 shadow-sm flex justify-between items-center">
+    <!-- Header Section -->
+    <header class="no-print bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 flex flex-wrap justify-between items-center gap-3">
       <div>
-        <h1 class="text-xl font-bold flex items-center gap-2">
-          <span>🎓</span> Al-Kausar Classes
+        <h1 class="text-xl font-bold text-emerald-800 flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-sm">🎓</span>
+          Al-Kausar Classes Portal
         </h1>
-        <p class="text-xs text-emerald-200 mt-1">ကျောင်းသင်ချိန် အချိန်ဇယားနှင့် စာသင်နှစ်စ စီမံခန့်ခွဲမှုစနစ်</p>
+        <p class="text-xs text-emerald-600 font-medium mt-0.5">Zoom Links, Class Timetable & Academic Management</p>
       </div>
-      <button onclick="toggleSection('adminSection')" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow">
-        ⚙️ မော်ဂျူး ပြောင်းရန်
-      </button>
+      
+      <!-- Navigation Buttons -->
+      <div class="flex gap-2">
+        <button onclick="showTab('teachersTab')" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
+          👨‍🏫 ဆရာများ စာရင်း
+        </button>
+        <button onclick="showTab('classSearchTab')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
+          🔍 အတန်းချိန် ရှာရန်
+        </button>
+        <button onclick="showTab('adminTab')" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
+          ⚙️ စာသင်နှစ်စ ခွဲဝေမှု
+        </button>
+      </div>
     </header>
 
-    <!-- 2. Home Screen: အတန်းအလိုက် အချိန်ဇယား ကြည့်ရန်/Print ထုတ်ရန် (Main Focus) -->
-    <section id="userSection" class="no-print bg-white rounded-2xl p-5 shadow-sm border border-emerald-100 space-y-4">
+    <!-- TAB 1: မူရင်း ဆရာများ စာရင်း ကြည့်ရန် (Teachers List) -->
+    <section id="teachersTab" class="no-print bg-white rounded-2xl p-5 shadow-sm border border-emerald-100 space-y-4">
+      <div class="flex justify-between items-center border-b border-emerald-100 pb-3">
+        <h2 class="text-sm font-bold text-emerald-900 flex items-center gap-2">
+          👨‍🏫 ဆရာ/မများ စာရင်းနှင့် Zoom သင်တန်းခန်းမများ
+        </h2>
+        <input type="text" id="teacherSearchInput" onkeyup="filterTeachers()" placeholder="ဆရာအမည် ရှာရန်..." 
+               class="p-2 border border-emerald-200 rounded-xl text-xs bg-emerald-50/30 outline-none focus:border-emerald-500 w-48">
+      </div>
+
+      <!-- Teachers Card Grid -->
+      <div id="teachersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Sample Teacher Card (JavaScript ဖြင့် Firebase မှ ဆွဲထုတ်ပြသနိုင်ပါသည်) -->
+        <div class="teacher-card bg-emerald-50/40 p-4 rounded-xl border border-emerald-100 space-y-2">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-bold text-sm text-emerald-950">ဆရာ ဦးအေး</h3>
+              <p class="text-xs text-emerald-700">မြန်မာစာ / Grade-5</p>
+            </div>
+            <span class="px-2 py-0.5 bg-emerald-200 text-emerald-800 rounded text-[10px] font-bold">Active</span>
+          </div>
+          <div class="text-xs space-y-1 text-gray-600 pt-1">
+            <p><strong>Meeting ID:</strong> 123 456 7890</p>
+            <p><strong>Passcode:</strong> 12345</p>
+          </div>
+          <a href="#" target="_blank" class="block w-full text-center py-2 bg-emerald-700 text-white rounded-lg text-xs font-bold hover:bg-emerald-800 transition-all">
+            🎥 Zoom Class သို့ ဝင်ရန်
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: မူရင်း အတန်းချိန် ရှာသည့် စနစ် (Class Timetable Finder) -->
+    <section id="classSearchTab" class="no-print hidden bg-white rounded-2xl p-5 shadow-sm border border-emerald-100 space-y-4">
       <div class="border-b border-emerald-100 pb-3">
         <h2 class="text-sm font-bold text-emerald-900 flex items-center gap-2">
-          <span>🔍</span> အတန်းအလိုက် အချိန်ဇယား ရှာဖွေခြင်း
+          🔍 အတန်းအလိုက် အချိန်ဇယား ရှာဖွေခြင်း
         </h2>
-        <p class="text-xs text-gray-500 mt-0.5">မိမိကြည့်လိုသော အတန်းနှင့် တန်းခွဲကို ရွေးချယ်ပါ</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label class="block text-xs font-bold text-emerald-800 mb-1">အတန်း</label>
-          <select id="selectGrade" class="w-full p-2.5 border border-emerald-200 rounded-xl text-xs bg-emerald-50/20 focus:ring-2 focus:ring-emerald-500 outline-none">
+          <select id="searchGrade" class="w-full p-2.5 border border-emerald-200 rounded-xl text-xs bg-emerald-50/20 outline-none">
             <option value="">-- အတန်း ရွေးပါ --</option>
 
             <option value="Grade-1">Grade-1</option>
@@ -65,34 +104,29 @@
             <option value="Grade-3">Grade-3</option>
             <option value="Grade-4">Grade-4</option>
             <option value="Grade-5">Grade-5</option>
-            <option value="Grade-6">Grade-6</option>
-            <option value="Grade-7">Grade-7</option>
-            <option value="Grade-8">Grade-8</option>
-            <option value="Grade-9">Grade-9</option>
           </select>
         </div>
 
         <div>
           <label class="block text-xs font-bold text-emerald-800 mb-1">တန်းခွဲ</label>
-          <select id="selectSection" class="w-full p-2.5 border border-emerald-200 rounded-xl text-xs bg-emerald-50/20 focus:ring-2 focus:ring-emerald-500 outline-none">
+          <select id="searchSection" class="w-full p-2.5 border border-emerald-200 rounded-xl text-xs bg-emerald-50/20 outline-none">
             <option value="A">Section A</option>
             <option value="B">Section B</option>
             <option value="C">Section C</option>
-            <option value="D">Section D</option>
           </select>
         </div>
 
-        <div class="flex items-end gap-2">
-          <button onclick="displaySchedule()" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow transition-all">
-            👁️ အချိန်ဇယား ကြည့်မည်
+        <div class="flex items-end">
+          <button onclick="searchClassTimetable()" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow transition-all">
+            ⏰ အချိန်ဇယား ကြည့်မည်
           </button>
         </div>
       </div>
 
-      <!-- Result Card -->
-      <div id="scheduleResult" class="hidden pt-4 border-t border-emerald-100 space-y-3">
+      <!-- Result Table -->
+      <div id="classResultArea" class="hidden pt-3 border-t border-emerald-100 space-y-3">
         <div class="flex justify-between items-center">
-          <h3 id="resultTitle" class="text-xs font-bold text-emerald-950"></h3>
+          <h3 id="classResultTitle" class="text-xs font-bold text-emerald-950"></h3>
           <button onclick="window.print()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow">
             🖨️ A4 Print ထုတ်မည်
           </button>
@@ -109,60 +143,50 @@
                 <th class="p-2 border border-emerald-700">4 ချိန်</th>
                 <th class="p-2 border border-emerald-700">5 ချိန်</th>
                 <th class="p-2 border border-emerald-700">6 ချိန်</th>
-                <th class="p-2 border border-emerald-700">7 ချိန်</th>
-                <th class="p-2 border border-emerald-700">8 ချိန်</th>
               </tr>
             </thead>
-            <tbody id="userTableBody" class="bg-white divide-y divide-emerald-50">
-              <!-- Result Rows -->
+            <tbody id="classTableBody" class="bg-white divide-y divide-emerald-50">
+              <!-- Search Output -->
             </tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- 3. Admin / Setup Screen ( Hidden by default for Clean UI ) -->
-    <section id="adminSection" class="no-print hidden bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-5">
-      <div class="border-b border-amber-100 pb-3 flex justify-between items-center">
-        <div>
-          <h2 class="text-sm font-bold text-amber-900 flex items-center gap-2">
-            <span>📚</span> စာသင်နှစ်အစ - ဘာသာရပ်နှင့် ဆရာ ခွဲဝေခြင်း
-          </h2>
-          <p class="text-xs text-gray-500 mt-0.5">ဆရာ/မများနှင့် သင်ကြားမည့် ဘာသာရပ်များကို စနစ်တွင်း သတ်မှတ်ရန်</p>
-        </div>
-        <span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-md text-[10px] font-bold">Admin Panel</span>
+    <!-- TAB 3: နှစ်စ ဘာသာရပ် ခွဲဝေမှုနှင့် စီမံခန့်ခွဲမှု (Academic Admin) -->
+    <section id="adminTab" class="no-print hidden bg-white rounded-2xl p-5 shadow-sm border border-amber-200 space-y-4">
+      <div class="border-b border-amber-100 pb-3">
+        <h2 class="text-sm font-bold text-amber-900 flex items-center gap-2">
+          📚 စာသင်နှစ်အစ - ဘာသာရပ်နှင့် ဆရာ ခွဲဝေခြင်း
+        </h2>
       </div>
 
       <form id="allocationForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">ဆရာ/မ အမည်</label>
-          <input type="text" id="allocTeacher" placeholder="ဥပမာ - ဦးအေး" required
-                 class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none focus:border-amber-500">
+          <input type="text" id="allocTeacher" placeholder="ဥပမာ - ဦးအေး" required class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none">
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">ဘာသာရပ်</label>
-          <input type="text" id="allocSubject" placeholder="ဥပမာ - မြန်မာစာ" required
-                 class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none focus:border-amber-500">
+          <input type="text" id="allocSubject" placeholder="ဥပမာ - မြန်မာစာ" required class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none">
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">အတန်း/တန်းခွဲ</label>
-          <input type="text" id="allocClass" placeholder="ဥပမာ - Grade-5" required
-                 class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none focus:border-amber-500">
+          <label class="block text-xs font-bold text-gray-700 mb-1">အတန်း</label>
+          <input type="text" id="allocClass" placeholder="ဥပမာ - Grade-5" required class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none">
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">တစ်ပတ်ချိန်ရေ</label>
-          <input type="number" id="allocPeriods" placeholder="ဥပမာ - 5" min="1" required
-                 class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none focus:border-amber-500">
+          <label class="block text-xs font-bold text-gray-700 mb-1">ချိန်ရေ</label>
+          <input type="number" id="allocPeriods" placeholder="ဥပမာ - 5" min="1" required class="w-full p-2 border border-gray-200 rounded-xl text-xs bg-gray-50 outline-none">
         </div>
 
         <div class="sm:col-span-2 md:col-span-4 text-right pt-2">
-          <button type="button" onclick="saveSubjectAllocation()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow transition-all">
+          <button type="button" onclick="saveAllocation()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow">
             💾 ခွဲဝေမှု သိမ်းဆည်းမည်
           </button>
         </div>
       </form>
 
-      <!-- Allocation List -->
+      <!-- Allocation Table -->
       <div class="pt-2">
         <h3 class="text-xs font-bold text-gray-700 mb-2">📋 ခွဲဝေပြီးစီးမှု စာရင်း</h3>
         <div class="overflow-x-auto rounded-xl border border-gray-100">
@@ -176,15 +200,13 @@
                 <th class="p-2">လုပ်ဆောင်ချက်</th>
               </tr>
             </thead>
-            <tbody id="allocationList" class="bg-white divide-y divide-gray-100">
-              <!-- JS Injected List -->
-            </tbody>
+            <tbody id="allocationList" class="bg-white divide-y divide-gray-100"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- 4. Print Layout Area (A4 Printable) -->
+    <!-- Printable Layout (A4) -->
     <div id="printArea" class="hidden print:block p-4 bg-white">
       <div class="text-center mb-4">
         <h1 id="printTitle" class="text-lg font-bold">Al-Kausar Class Timetable</h1>
@@ -200,121 +222,119 @@
             <th class="border border-black p-2">4 ချိန်</th>
             <th class="border border-black p-2">5 ချိန်</th>
             <th class="border border-black p-2">6 ချိန်</th>
-            <th class="border border-black p-2">7 ချိန်</th>
-            <th class="border border-black p-2">8 ချိန်</th>
           </tr>
         </thead>
-        <tbody id="printTableBody">
-          <!-- Print Rows -->
-        </tbody>
+        <tbody id="printTableBody"></tbody>
       </table>
     </div>
 
   </div>
 
-  <!-- JavaScript Code -->
+  <!-- JavaScript -->
   <script>
-    // Data Storage (Isolated in LocalStorage)
     let allocations = JSON.parse(localStorage.getItem('subjectAllocations')) || [];
 
     document.addEventListener('DOMContentLoaded', () => {
-      renderAllocationTable();
+      renderAllocations();
     });
 
-    // Toggle Admin Panel
-    function toggleSection(id) {
-      const el = document.getElementById(id);
-      el.classList.toggle('hidden');
+    // Tab Switching System
+    function showTab(tabId) {
+      document.getElementById('teachersTab').classList.add('hidden');
+      document.getElementById('classSearchTab').classList.add('hidden');
+      document.getElementById('adminTab').classList.add('hidden');
+
+      document.getElementById(tabId).classList.remove('hidden');
     }
 
-    // Save Allocation Data
-    function saveSubjectAllocation() {
+    // Teacher Filter
+    function filterTeachers() {
+      const input = document.getElementById('teacherSearchInput').value.toLowerCase();
+      const cards = document.getElementsByClassName('teacher-card');
+
+      for (let card of cards) {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(input) ? "block" : "none";
+      }
+    }
+
+    // Save Subject Allocation
+    function saveAllocation() {
       const teacher = document.getElementById('allocTeacher').value.trim();
       const subject = document.getElementById('allocSubject').value.trim();
       const className = document.getElementById('allocClass').value.trim();
       const periods = document.getElementById('allocPeriods').value;
 
       if (!teacher || !subject || !className || !periods) {
-        alert('ကျေးဇူးပြု၍ အချက်အလက်များ ပြည့်စုံစွာ ဖြည့်ပါ။');
+        alert('အချက်အလက်များ ပြည့်စုံစွာ ဖြည့်ပါ');
         return;
       }
 
-      const item = { id: Date.now(), teacher, subject, className, periods };
-      allocations.push(item);
+      allocations.push({ id: Date.now(), teacher, subject, className, periods });
       localStorage.setItem('subjectAllocations', JSON.stringify(allocations));
-
       document.getElementById('allocationForm').reset();
-      renderAllocationTable();
+      renderAllocations();
     }
 
-    // Render Admin Table
-    function renderAllocationTable() {
+    function renderAllocations() {
       const tbody = document.getElementById('allocationList');
       tbody.innerHTML = '';
 
       if (allocations.length === 0) {
-        tbody.innerHTML = `<tr><td colSpan="5" class="p-3 text-gray-400 italic">ခွဲဝေထားသော ဘာသာရပ် စာရင်း မရှိသေးပါ။</td></tr>`;
+        tbody.innerHTML = `<tr><td colSpan="5" class="p-3 text-gray-400 italic">ခွဲဝေမှု စာရင်း မရှိသေးပါ</td></tr>`;
         return;
       }
 
-      allocations.forEach((item) => {
+      allocations.forEach(item => {
         tbody.innerHTML += `
-          <tr class="hover:bg-gray-50">
+          <tr>
             <td class="p-2 font-semibold text-gray-800">${item.teacher}</td>
             <td class="p-2 text-gray-600">${item.subject}</td>
             <td class="p-2 font-bold text-amber-700">${item.className}</td>
             <td class="p-2">${item.periods} ချိန်</td>
-            <td class="p-2">
-              <button onclick="deleteAllocation(${item.id})" class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px]">
-                ဖျက်မည်
-              </button>
-            </td>
+            <td class="p-2"><button onclick="deleteAllocation(${item.id})" class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px]">ဖျက်မည်</button></td>
           </tr>
         `;
       });
     }
 
-    // Delete Item
     function deleteAllocation(id) {
-      if (confirm('ဖျက်ရန် သေချာပါသလား?')) {
-        allocations = allocations.filter(i => i.id !== id);
-        localStorage.setItem('subjectAllocations', JSON.stringify(allocations));
-        renderAllocationTable();
-      }
+      allocations = allocations.filter(i => i.id !== id);
+      localStorage.setItem('subjectAllocations', JSON.stringify(allocations));
+      renderAllocations();
     }
 
-    // Display Timetable Grid
-    function displaySchedule() {
-      const grade = document.getElementById('selectGrade').value;
-      const section = document.getElementById('selectSection').value;
+    // Search Timetable
+    function searchClassTimetable() {
+      const grade = document.getElementById('searchGrade').value;
+      const section = document.getElementById('searchSection').value;
 
       if (!grade) {
-        alert("ကျေးဇူးပြု၍ အတန်း ရွေးပါ");
+        alert("အတန်း ရွေးပါ");
         return;
       }
 
       const fullClass = `${grade} (${section})`;
-      document.getElementById('resultTitle').innerText = `${fullClass} အချိန်ဇယား ရလဒ်`;
+      document.getElementById('classResultTitle').innerText = `${fullClass} အချိန်ဇယား`;
       document.getElementById('printTitle').innerText = `Al-Kausar Class Timetable`;
       document.getElementById('printSubTitle').innerText = `အတန်း : ${fullClass}`;
 
       const days = ["စနေ", "တနင်္ဂနွေ", "တနင်္လာ", "အင်္ဂါ", "ဗုဒ္ဓဟူး", "ကြာသပတေး", "သောကြာ"];
-      
-      let tableRows = '';
+      let rows = '';
+
       days.forEach(day => {
-        tableRows += `<tr><td class="p-2 font-bold bg-emerald-50/50 border border-emerald-100">${day}</td>`;
-        
-        for (let p = 1; p <= 8; p++) {
+        rows += `<tr><td class="p-2 font-bold bg-emerald-50/50 border border-emerald-100">${day}</td>`;
+        for (let p = 1; p <= 6; p++) {
           const matched = allocations.find(a => a.className.toLowerCase().includes(grade.toLowerCase()));
-          const info = matched ? `<div class="font-bold">${matched.subject}</div><div class="text-[10px] text-gray-500">(${matched.teacher})</div>` : '-';
-          tableRows += `<td class="p-2 border border-emerald-100">${info}</td>`;
+          const info = matched ? `<b>${matched.subject}</b><br><span class="text-[10px] text-gray-500">(${matched.teacher})</span>` : '-';
+          rows += `<td class="p-2 border border-emerald-100">${info}</td>`;
         }
-        tableRows += `</tr>`;
+        rows += `</tr>`;
       });
 
-      document.getElementById('userTableBody').innerHTML = tableRows;
-      document.getElementById('printTableBody').innerHTML = tableRows;
-      document.getElementById('scheduleResult').classList.remove('hidden');
+      document.getElementById('classTableBody').innerHTML = rows;
+      document.getElementById('printTableBody').innerHTML = rows;
+      document.getElementById('classResultArea').classList.remove('hidden');
     }
   </script>
 </body>
