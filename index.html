@@ -97,10 +97,9 @@
                 meetings: "alkausar_meetings_cache",
                 announcement: "alkausar_announcement_cache"
             },
-            adminPassword: "55155", // Move to Firebase Auth before production.
+            adminPassword: "55155",
             maxPeriods: 8
         });
-
 
         const firebaseConfig = {
             apiKey: "AIzaSyDrNrQj8RzKy7UHNifSY7jpeSw1qtSeDOI",
@@ -124,6 +123,38 @@
         window.activeModalDay = 'sat';
 
         const { meetings: LOCAL_STORAGE_KEY, announcement: ANNOUNCEMENT_CACHE_KEY } = APP_CONFIG.cacheKeys;
+
+        function renderPeriodInputs() {
+            const container = document.getElementById('periodInputsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
+                const div = document.createElement('div');
+                div.className = "bg-gray-50 p-2 rounded-xl border border-islamic-100";
+                div.innerHTML = `
+                    <span class="text-[10px] font-bold text-islamic-700 block mb-1">${i} ချိန်မြောက်</span>
+                    <div class="grid grid-cols-5 gap-1.5">
+                        <select id="p${i}_grade" onchange="handleGradeChange(${i})" class="col-span-3 p-1.5 border border-islamic-200 rounded-lg text-xs">
+                            <option value="">- မရှိ -</option>
+                            <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
+                            <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
+                            <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <select id="p${i}_sec" class="col-span-2 p-1.5 border border-islamic-200 rounded-lg text-xs font-bold text-center">
+                            <option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                        </select>
+                    </div>
+                    <input type="text" id="p${i}_custom" placeholder="အခြားအတန်း ရိုက်ပါ..." class="hidden w-full mt-1 p-1 border border-islamic-200 rounded-lg text-xs">
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPeriodInputs();
+            loadCachedData();
+        });
 
         function loadCachedData() {
             try {
@@ -169,8 +200,6 @@
             }
             return '';
         }
-
-        loadCachedData();
 
         onValue(announcementRef, (snapshot) => {
             const data = snapshot.val();
@@ -424,7 +453,7 @@
             const phone = document.getElementById('teacherPhone').value.trim();
 
             if (!name || !link) { alert("ဆရာအမည်နှင့် Zoom Link ထည့်ပါ။"); return; }
-            if (prompt("Admin Password ရိုက်ထည့်ပါ:") !== APP_CONFIG.adminPassword) { alert("Password မမှန်ပါ။"); return; }
+            if (prompt("Admin Password ရိုက်ထည့်ပါ:") !== APP_CONFIG.adminPassword)
 
             const payload = { name, link, idNum, phone, weeklySchedule: window.tempSchedule };
             if (editId) update(ref(db, `meetings/${editId}`), payload).then(() => window.toggleModal(false));
@@ -551,6 +580,7 @@
             <div id="meetingContainer" class="space-y-2.5 pt-1"></div>
         </div>
     </div>
+
     <div id="announcementModal" class="fixed inset-0 bg-islamic-950/50 hidden flex items-center justify-center p-3 z-50">
         <div class="bg-white rounded-3xl p-5 w-full max-w-md shadow-xl">
             <h3 class="text-sm font-bold text-islamic-800 mb-2">ကြေညာချက် ပြင်ဆင်ရန်</h3>
@@ -585,30 +615,7 @@
                         <button id="tab-thu" onclick="switchModalDay('thu')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ကြာသပတေး</button>
                         <button id="tab-fri" onclick="switchModalDay('fri')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">သောကြာ</button>
                     </div>
-                    <div class="space-y-2 max-h-[220px] overflow-y-auto">
-                        <script>
-                            for (let i = 1; i <= APP_CONFIG.maxPeriods; i++) {
-                                document.write(`
-                                    <div class="bg-gray-50 p-2 rounded-xl border border-islamic-100">
-                                        <span class="text-[10px] font-bold text-islamic-700 block mb-1">${i} ချိန်မြောက်</span>
-                                        <div class="grid grid-cols-5 gap-1.5">
-                                            <select id="p${i}_grade" onchange="handleGradeChange(${i})" class="col-span-3 p-1.5 border border-islamic-200 rounded-lg text-xs">
-                                                <option value="">- မရှိ -</option>
-                                                <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
-                                                <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
-                                                <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                            <select id="p${i}_sec" class="col-span-2 p-1.5 border border-islamic-200 rounded-lg text-xs font-bold text-center">
-                                                <option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-                                            </select>
-                                        </div>
-                                        <input type="text" id="p${i}_custom" placeholder="အခြားအတန်း ရိုက်ပါ..." class="hidden w-full mt-1 p-1 border border-islamic-200 rounded-lg text-xs">
-                                    </div>
-                                `);
-                            }
-                        </script>
-                    </div>
+                    <div id="periodInputsContainer" class="space-y-2 max-h-[220px] overflow-y-auto"></div>
                 </div>
             </div>
             <div class="flex justify-end gap-2 mt-4">
@@ -624,3 +631,4 @@
 
 </body>
 </html>
+                    
