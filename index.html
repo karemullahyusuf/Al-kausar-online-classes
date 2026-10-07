@@ -230,6 +230,8 @@
             const container = document.getElementById('meetingContainer');
             if (!container) return;
             const searchKeyword = (document.getElementById('teacherSearchInput')?.value || '').toLowerCase().trim();
+            const cleanSearch = searchKeyword.replace(/-/g, ''); // '-' မပါဘဲ ရှာနိုင်ရန် ဖျက်ထုတ်ခြင်း
+
             container.innerHTML = '';
             const keys = Object.keys(meetingsData);
 
@@ -240,10 +242,16 @@
 
             keys.forEach(key => {
                 const item = meetingsData[key];
-                const nameMatch = (item.name || '').toLowerCase().includes(searchKeyword);
-                const idMatch = (item.idNum || '').toLowerCase().includes(searchKeyword);
-                const phoneMatch = (item.phone || '').toLowerCase().includes(searchKeyword);
+                const itemName = (item.name || '').toLowerCase();
+                const itemId = (item.idNum || '').toLowerCase();
+                const cleanId = itemId.replace(/-/g, ''); // ID ထဲမှ '-' ကို ဖျက်ထုတ်ခြင်း
+                const itemPhone = (item.phone || '').toLowerCase();
                 let scheduleMatch = item.weeklySchedule && JSON.stringify(item.weeklySchedule).toLowerCase().includes(searchKeyword);
+
+                const nameMatch = itemName.includes(searchKeyword);
+                // ID ထဲမှာ '-' ပါသည်ဖြစ်စေ၊ မပါသည်ဖြစ်စေ နှစ်မျိုးလုံး တိုက်ဆိုင်စစ်ဆေးခြင်း
+                const idMatch = itemId.includes(searchKeyword) || (cleanSearch !== '' && cleanId.includes(cleanSearch));
+                const phoneMatch = itemPhone.includes(searchKeyword);
 
                 if (searchKeyword && !nameMatch && !idMatch && !phoneMatch && !scheduleMatch) return;
 
@@ -460,7 +468,12 @@
             document.getElementById('editKey').value = '';
             document.getElementById('teacherName').value = '';
             document.getElementById('zoomLink').value = '';
-            document.getElementById('meetingId').value = '';
+
+            // Auto-generate Teacher ID (e.g., T-001)
+            const currentCount = Object.keys(meetingsData).length + 1;
+            const autoId = 'T-' + String(currentCount).padStart(3, '0');
+            document.getElementById('meetingId').value = autoId;
+
             document.getElementById('teacherPhone').value = '';
             window.tempSchedule = {};
             window.loadDayToInputs(getCurrentDayId());
