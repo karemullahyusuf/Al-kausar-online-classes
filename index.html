@@ -38,7 +38,7 @@
         }
     </script>
 
-        <style>
+    <style>
         body {
             font-family: 'Noto Sans Myanmar', 'Padauk', sans-serif;
             background-color: #f0f9f4;
@@ -109,10 +109,26 @@
         let meetingsData = {};
         window.activeViewDays = {};
         window.expandedCards = {};
-        window.activeModalDay = 'sat';
+
+        // Helper function to get current day ID ('sun', 'mon', 'tue', etc.)
+        function getCurrentDayId() {
+            const dayMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+            const todayIndex = new Date().getDay();
+            return dayMap[todayIndex];
+        }
+
+        window.activeModalDay = getCurrentDayId();
 
         const LOCAL_STORAGE_KEY = 'alkausar_meetings_cache';
         const ANNOUNCEMENT_CACHE_KEY = 'alkausar_announcement_cache';
+
+        // Set default current day in the filter dropdown on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const daySelect = document.getElementById('filterDaySelect');
+            if (daySelect) {
+                daySelect.value = getCurrentDayId();
+            }
+        });
 
         // Load data from cache to ensure fast initial rendering
         function loadCachedData() {
@@ -231,7 +247,7 @@
 
                 if (searchKeyword && !nameMatch && !idMatch && !phoneMatch && !scheduleMatch) return;
 
-                if (!window.activeViewDays[key]) window.activeViewDays[key] = 'sat';
+                if (!window.activeViewDays[key]) window.activeViewDays[key] = getCurrentDayId();
                 const currentDay = window.activeViewDays[key];
                 const isExpanded = searchKeyword ? true : !!window.expandedCards[key];
 
@@ -435,7 +451,7 @@
             document.getElementById('meetingId').value = item.idNum || '';
             document.getElementById('teacherPhone').value = item.phone || '';
             window.tempSchedule = JSON.parse(JSON.stringify(item.weeklySchedule || {}));
-            window.loadDayToInputs('sat');
+            window.loadDayToInputs(getCurrentDayId());
             window.toggleModal(true);
         };
 
@@ -447,7 +463,7 @@
             document.getElementById('meetingId').value = '';
             document.getElementById('teacherPhone').value = '';
             window.tempSchedule = {};
-            window.loadDayToInputs('sat');
+            window.loadDayToInputs(getCurrentDayId());
             window.toggleModal(true);
         };
 
@@ -581,7 +597,7 @@
                 <div class="border-t border-islamic-100 pt-3">
                     <label class="block text-[11px] font-bold text-gold-700 mb-2">အချိန်ဇယား ပြင်ရန်</label>
                     <div class="flex gap-1 overflow-x-auto pb-2 scrollbar-none mb-2">
-                        <button id="tab-sat" onclick="switchModalDay('sat')" class="px-3 py-1 bg-islamic-600 text-white rounded-xl text-xs">စနေ</button>
+                        <button id="tab-sat" onclick="switchModalDay('sat')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">စနေ</button>
                         <button id="tab-sun" onclick="switchModalDay('sun')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">တနင်္ဂနွေ</button>
                         <button id="tab-mon" onclick="switchModalDay('mon')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">တနင်္လာ</button>
                         <button id="tab-tue" onclick="switchModalDay('tue')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">အင်္ဂါ</button>
@@ -652,4 +668,3 @@
     </script>
 </body>
 </html>
-        
