@@ -230,10 +230,17 @@
             const container = document.getElementById('meetingContainer');
             if (!container) return;
             const searchKeyword = (document.getElementById('teacherSearchInput')?.value || '').toLowerCase().trim();
-            const cleanSearch = searchKeyword.replace(/-/g, ''); // '-' မပါဘဲ ရှာနိုင်ရန် ဖျက်ထုတ်ခြင်း
+            const cleanSearch = searchKeyword.replace(/-/g, '');
 
             container.innerHTML = '';
-            const keys = Object.keys(meetingsData);
+            let keys = Object.keys(meetingsData);
+
+            // ID နံပါတ်စဉ်အတိုင်း (T-001, T-002, T-003...) ငယ်စဉ်ကြီးလိုက် တန်းစီပေးခြင်း
+            keys.sort((a, b) => {
+                const idA = (meetingsData[a].idNum || '').toLowerCase();
+                const idB = (meetingsData[b].idNum || '').toLowerCase();
+                return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });
+            });
 
             if (keys.length === 0) {
                 container.innerHTML = `<div class="text-center py-16 text-islamic-600/60 text-xs"><p>ဒေတာ မရှိသေးပါ</p></div>`;
@@ -244,12 +251,11 @@
                 const item = meetingsData[key];
                 const itemName = (item.name || '').toLowerCase();
                 const itemId = (item.idNum || '').toLowerCase();
-                const cleanId = itemId.replace(/-/g, ''); // ID ထဲမှ '-' ကို ဖျက်ထုတ်ခြင်း
+                const cleanId = itemId.replace(/-/g, '');
                 const itemPhone = (item.phone || '').toLowerCase();
                 let scheduleMatch = item.weeklySchedule && JSON.stringify(item.weeklySchedule).toLowerCase().includes(searchKeyword);
 
                 const nameMatch = itemName.includes(searchKeyword);
-                // ID ထဲမှာ '-' ပါသည်ဖြစ်စေ၊ မပါသည်ဖြစ်စေ နှစ်မျိုးလုံး တိုက်ဆိုင်စစ်ဆေးခြင်း
                 const idMatch = itemId.includes(searchKeyword) || (cleanSearch !== '' && cleanId.includes(cleanSearch));
                 const phoneMatch = itemPhone.includes(searchKeyword);
 
