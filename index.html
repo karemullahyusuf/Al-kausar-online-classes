@@ -367,7 +367,7 @@
             resultBox.classList.remove('hidden');
         };
 
-        // Class-Wise Master Weekly Timetable
+        // Class-Wise Master Weekly Timetable (Periods Horizontal, Days Vertical)
         window.renderMasterWeeklyTimetable = function() {
             const grade = document.getElementById('masterGradeSelect').value;
             const section = document.getElementById('masterSectionSelect').value;
@@ -384,25 +384,27 @@
             const secLabel = (section && section !== '-') ? ` (${section})` : '';
             titleEl.innerText = `${grade}${secLabel} - တစ်ပတ်စာ အချိန်ဇယား`;
 
-            let headHTML = `<tr class="bg-islamic-600 text-white text-[11px]"><th class="p-2.5 text-center font-bold w-24 border-r border-islamic-700">အချိန်</th>`;
-            daysList.forEach(d => {
-                const isToday = d.id === todayId;
-                if (isToday) {
-                    headHTML += `<th class="p-2.5 text-center font-bold border-r border-gold-300 bg-gold-500 text-white shadow-inner"><i class="fa-solid fa-star text-[9px] mr-1"></i>${d.label} (ယနေ့)</th>`;
-                } else {
-                    headHTML += `<th class="p-2.5 text-center font-bold border-r border-islamic-700">${d.label}</th>`;
-                }
-            });
+            // Table Header: Periods 1 to 8 Horizontal
+            let headHTML = `<tr class="bg-islamic-600 text-white text-[11px]">
+                <th class="p-2.5 text-center font-bold w-28 border-r border-islamic-700">နေ့ရက်</th>`;
+            for (let i = 1; i <= 8; i++) {
+                headHTML += `<th class="p-2.5 text-center font-bold border-r border-islamic-700">${i} ချိန်<br><span class="text-[9px] font-normal text-gold-200">${defaultTimes[`p${i}`]}</span></th>`;
+            }
             headHTML += `</tr>`;
             tableHead.innerHTML = headHTML;
+
             tableBody.innerHTML = '';
 
-            for (let i = 1; i <= 8; i++) {
-                let rowHTML = `<tr class="border-b border-islamic-100 hover:bg-islamic-50/30 transition-colors">`;
-                rowHTML += `<td class="p-2.5 text-center font-bold text-gold-700 bg-gold-50/60 border-r border-islamic-100 text-xs">${i} ချိန်<br><span class="text-[9px] font-normal text-islamic-600">${defaultTimes[`p${i}`]}</span></td>`;
+            // Table Body: Days Vertical
+            daysList.forEach(d => {
+                const isToday = d.id === todayId;
+                const rowBg = isToday ? 'bg-gold-50/90 font-bold border-y-2 border-gold-300' : 'bg-white hover:bg-islamic-50/30';
+                const dayLabelBg = isToday ? 'bg-gold-500 text-white shadow-inner font-bold' : 'bg-gold-50/80 text-gold-700 font-bold';
 
-                daysList.forEach(d => {
-                    const isToday = d.id === todayId;
+                let rowHTML = `<tr class="border-b border-islamic-100 ${rowBg}">`;
+                rowHTML += `<td class="p-2.5 text-center text-xs border-r border-islamic-100 ${dayLabelBg}">${isToday ? '<i class="fa-solid fa-star text-[9px] mr-1"></i>' : ''}${d.label}${isToday ? ' (ယနေ့)' : ''}</td>`;
+
+                for (let i = 1; i <= 8; i++) {
                     let cellTeachers = [];
                     Object.keys(meetingsData).forEach(key => {
                         const teacher = meetingsData[key];
@@ -418,21 +420,19 @@
                         }
                     });
 
-                    const bgClass = isToday ? 'bg-gold-50/80 font-bold border-x-2 border-gold-300/80' : 'bg-white/90 border-r border-islamic-100';
-
                     if (cellTeachers.length > 0) {
-                        rowHTML += `<td class="p-2 text-center text-xs font-semibold text-islamic-900 ${bgClass}">${cellTeachers.join(', ')}</td>`;
+                        rowHTML += `<td class="p-2 text-center text-xs font-semibold text-islamic-900 border-r border-islamic-100">${cellTeachers.join(', ')}</td>`;
                     } else {
-                        rowHTML += `<td class="p-2 text-center text-[11px] text-gray-300 italic ${bgClass}">-</td>`;
+                        rowHTML += `<td class="p-2 text-center text-[11px] text-gray-300 italic border-r border-islamic-100">-</td>`;
                     }
-                });
+                }
 
                 rowHTML += `</tr>`;
                 tableBody.innerHTML += rowHTML;
-            }
+            });
         };
 
-        // Teacher-Wise Weekly Timetable
+        // Teacher-Wise Weekly Timetable (Periods Horizontal, Days Vertical)
         window.renderTeacherWeeklyTimetable = function() {
             const teacherKey = document.getElementById('teacherWeeklySelect').value;
             const tableHead = document.getElementById('teacherTableHead');
@@ -450,25 +450,27 @@
             const todayId = getCurrentDayId();
             titleEl.innerText = `${teacher.name} (${teacher.idNum || 'N/A'}) - တစ်ပတ်စာ အချိန်ဇယား`;
 
-            let headHTML = `<tr class="bg-islamic-600 text-white text-[11px]"><th class="p-2.5 text-center font-bold w-24 border-r border-islamic-700">အချိန်</th>`;
-            daysList.forEach(d => {
-                const isToday = d.id === todayId;
-                if (isToday) {
-                    headHTML += `<th class="p-2.5 text-center font-bold border-r border-gold-300 bg-gold-500 text-white shadow-inner"><i class="fa-solid fa-star text-[9px] mr-1"></i>${d.label} (ယနေ့)</th>`;
-                } else {
-                    headHTML += `<th class="p-2.5 text-center font-bold border-r border-islamic-700">${d.label}</th>`;
-                }
-            });
+            // Table Header: Periods 1 to 8 Horizontal
+            let headHTML = `<tr class="bg-islamic-600 text-white text-[11px]">
+                <th class="p-2.5 text-center font-bold w-28 border-r border-islamic-700">နေ့ရက်</th>`;
+            for (let i = 1; i <= 8; i++) {
+                headHTML += `<th class="p-2.5 text-center font-bold border-r border-islamic-700">${i} ချိန်<br><span class="text-[9px] font-normal text-gold-200">${defaultTimes[`p${i}`]}</span></th>`;
+            }
             headHTML += `</tr>`;
             tableHead.innerHTML = headHTML;
+
             tableBody.innerHTML = '';
 
-            for (let i = 1; i <= 8; i++) {
-                let rowHTML = `<tr class="border-b border-islamic-100 hover:bg-islamic-50/30 transition-colors">`;
-                rowHTML += `<td class="p-2.5 text-center font-bold text-gold-700 bg-gold-50/60 border-r border-islamic-100 text-xs">${i} ချိန်<br><span class="text-[9px] font-normal text-islamic-600">${defaultTimes[`p${i}`]}</span></td>`;
+            // Table Body: Days Vertical
+            daysList.forEach(d => {
+                const isToday = d.id === todayId;
+                const rowBg = isToday ? 'bg-gold-50/90 font-bold border-y-2 border-gold-300' : 'bg-white hover:bg-islamic-50/30';
+                const dayLabelBg = isToday ? 'bg-gold-500 text-white shadow-inner font-bold' : 'bg-gold-50/80 text-gold-700 font-bold';
 
-                daysList.forEach(d => {
-                    const isToday = d.id === todayId;
+                let rowHTML = `<tr class="border-b border-islamic-100 ${rowBg}">`;
+                rowHTML += `<td class="p-2.5 text-center text-xs border-r border-islamic-100 ${dayLabelBg}">${isToday ? '<i class="fa-solid fa-star text-[9px] mr-1"></i>' : ''}${d.label}${isToday ? ' (ယနေ့)' : ''}</td>`;
+
+                for (let i = 1; i <= 8; i++) {
                     const sched = teacher.weeklySchedule ? teacher.weeklySchedule[d.id] : null;
                     let periodText = '-';
 
@@ -476,18 +478,16 @@
                         periodText = formatPeriodText(sched[`p${i}`]);
                     }
 
-                    const bgClass = isToday ? 'bg-gold-50/80 font-bold border-x-2 border-gold-300/80' : 'bg-white/90 border-r border-islamic-100';
-
                     if (periodText && periodText !== '-') {
-                        rowHTML += `<td class="p-2 text-center text-xs font-semibold text-islamic-900 ${bgClass}">${periodText}</td>`;
+                        rowHTML += `<td class="p-2 text-center text-xs font-semibold text-islamic-900 border-r border-islamic-100">${periodText}</td>`;
                     } else {
-                        rowHTML += `<td class="p-2 text-center text-[11px] text-gray-300 italic ${bgClass}">-</td>`;
+                        rowHTML += `<td class="p-2 text-center text-[11px] text-gray-300 italic border-r border-islamic-100">-</td>`;
                     }
-                });
+                }
 
                 rowHTML += `</tr>`;
                 tableBody.innerHTML += rowHTML;
-            }
+            });
         };
 
         window.openAnnouncementModal = function() {
@@ -621,7 +621,7 @@
     </script>
 </head>
 <body class="min-h-screen p-3 md:p-6 font-mm">
-    <div class="w-full max-w-4xl mx-auto">
+    <div class="w-full max-w-5xl mx-auto">
         <!-- Home Page -->
         <div id="homePage" class="space-y-4 max-w-2xl mx-auto">
             <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between">
@@ -752,27 +752,30 @@
                 <button onclick="renderMasterWeeklyTimetable()" class="w-full py-2 bg-islamic-600 hover:bg-islamic-700 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-table mr-1"></i> တစ်ပတ်စာ အချိန်ဇယား ထုတ်ကြည့်မည်</button>
             </div>
 
+            <!-- Print Area Table -->
             <div class="bg-white rounded-2xl p-4 border border-islamic-100 shadow-sm print-area">
                 <div class="text-center mb-3">
                     <h2 class="text-base font-bold text-islamic-900">Al-Kausar Classes</h2>
                     <h3 id="masterTitle" class="text-xs font-bold text-gold-700 mt-1">အတန်း ရွေးချယ်ပြီး တစ်ပတ်စာ အချိန်ဇယား ကြည့်ပါ</h3>
                 </div>
                 <div class="overflow-x-auto scrollbar-none rounded-xl border border-islamic-200">
-                    <table class="w-full text-left border-collapse min-w-[600px]">
+                    <table class="w-full text-left border-collapse min-w-[750px]">
                         <thead id="masterTableHead">
                             <tr class="bg-islamic-600 text-white text-[11px]">
-                                <th class="p-2.5 text-center font-bold w-24 border-r border-islamic-700">အချိန်</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">စနေ</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">တနင်္ဂနွေ</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">တနင်္လာ</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">အင်္ဂါ</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">ဗုဒ္ဓဟူး</th>
-                                <th class="p-2.5 text-center font-bold">ကြာသပတေး</th>
+                                <th class="p-2.5 text-center font-bold w-28 border-r border-islamic-700">နေ့ရက်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၁ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၂ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၃ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၄ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၅ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၆ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၇ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold">၈ ချိန်</th>
                             </tr>
                         </thead>
                         <tbody id="masterTableBody" class="bg-white">
                             <tr>
-                                <td colspan="7" class="p-6 text-center text-xs text-islamic-500 italic">အတန်း ရွေးချယ်ပြီး အချိန်ဇယား ထုတ်ကြည့်ပါ</td>
+                                <td colspan="9" class="p-6 text-center text-xs text-islamic-500 italic">အတန်း ရွေးချယ်ပြီး အချိန်ဇယား ထုတ်ကြည့်ပါ</td>
                             </tr>
                         </tbody>
                     </table>
@@ -804,21 +807,23 @@
                     <h3 id="teacherTitle" class="text-xs font-bold text-gold-700 mt-1">ဆရာ ရွေးချယ်ပြီး တစ်ပတ်စာ အချိန်ဇယား ကြည့်ပါ</h3>
                 </div>
                 <div class="overflow-x-auto scrollbar-none rounded-xl border border-islamic-200">
-                    <table class="w-full text-left border-collapse min-w-[600px]">
+                    <table class="w-full text-left border-collapse min-w-[750px]">
                         <thead id="teacherTableHead">
                             <tr class="bg-islamic-600 text-white text-[11px]">
-                                <th class="p-2.5 text-center font-bold w-24 border-r border-islamic-700">အချိန်</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">စနေ</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">တနင်္ဂနွေ</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">တနင်္လာ</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">အင်္ဂါ</th>
-                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">ဗုဒ္ဓဟူး</th>
-                                <th class="p-2.5 text-center font-bold">ကြာသပတေး</th>
+                                <th class="p-2.5 text-center font-bold w-28 border-r border-islamic-700">နေ့ရက်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၁ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၂ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၃ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၄ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၅ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၆ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold border-r border-islamic-700">၇ ချိန်</th>
+                                <th class="p-2.5 text-center font-bold">၈ ချိန်</th>
                             </tr>
                         </thead>
                         <tbody id="teacherTableBody" class="bg-white">
                             <tr>
-                                <td colspan="7" class="p-6 text-center text-xs text-islamic-500 italic">ဆရာ/ဆရာမ ရွေးချယ်ပြီး အချိန်ဇယား ထုတ်ကြည့်ပါ</td>
+                                <td colspan="9" class="p-6 text-center text-xs text-islamic-500 italic">ဆရာ/ဆရာမ ရွေးချယ်ပြီး အချိန်ဇယား ထုတ်ကြည့်ပါ</td>
                             </tr>
                         </tbody>
                     </table>
