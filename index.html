@@ -14,7 +14,7 @@
     <!-- External Tailwind CSS and Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -22,6 +22,7 @@
                 extend: {
                     fontFamily: {
                         'mm': ['"Noto Sans Myanmar"', '"Padauk"', 'sans-serif'],
+                        'arabic': ['"Amiri"', 'serif'],
                     },
                     colors: {
                         'islamic': {
@@ -110,8 +111,17 @@
         const db = getDatabase(app);
         const meetingsRef = ref(db, 'meetings');
         const announcementRef = ref(db, 'announcement');
+        const subjectsRef = ref(db, 'subjects');
 
         let meetingsData = {};
+        let dbSubjectsList = [];
+
+        // Default Subjects Array
+        const defaultSubjects = [
+            "التجويد", "التفسير", "علوم القرآن", "الفقه", "أصول الفقه", 
+            "الحديث", "أصول الحديث", "النحو", "الصرف", "العربية", 
+            "البورمية", "الإنجليزية", "العلوم", "الرياضية"
+        ];
 
         const defaultTimes = {
             p1: '07:30 AM - 08:10 AM',
@@ -187,6 +197,12 @@
             }
         });
 
+        onValue(subjectsRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            dbSubjectsList = Object.values(data);
+            updateSubjectDropdowns();
+        });
+
         onValue(meetingsRef, (snapshot) => {
             meetingsData = snapshot.val() || {};
             try {
@@ -197,6 +213,33 @@
             renderMeetings();
             populateTeacherDropdown();
         });
+
+        function getAllSubjects() {
+            const combined = [...defaultSubjects, ...dbSubjectsList];
+            return [...new Set(combined)]; // Unique subjects
+        }
+
+        window.updateSubjectDropdowns = function() {
+            const allSubs = getAllSubjects();
+            for (let i = 1; i <= 8; i++) {
+                const subSelect = document.getElementById(`p${i}_subject`);
+                if (!subSelect) continue;
+                const currentVal = subSelect.value;
+                subSelect.innerHTML = '<option value="">- ဘာသာရပ် မရှိ -</option>';
+                allSubs.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    subSelect.appendChild(opt);
+                });
+                const otherOpt = document.createElement('option');
+                otherOpt.value = 'Other';
+                otherOpt.textContent = 'Other (အသစ်ရိုက်ထည့်ရန်)';
+                subSelect.appendChild(otherOpt);
+
+                if (currentVal) subSelect.value = currentVal;
+            }
+        };
 
         function populateTeacherDropdown() {
             const select = document.getElementById('teacherWeeklySelect');
@@ -332,17 +375,19 @@
                         const pVal = sched[`p${i}`];
                         let isMatch = false;
                         let customTime = '';
+                        let subjectName = '';
 
                         if (typeof pVal === 'string' && pVal === grade) isMatch = true;
                         else if (typeof pVal === 'object' && pVal.grade === grade) {
                             if (!section || section === '-' || pVal.section === section || pVal.section === '-') {
                                 isMatch = true;
                                 customTime = pVal.time || '';
+                                subjectName = pVal.subject || '';
                             }
                         }
                         if (isMatch) {
                             const periodTime = customTime || defaultTimes[`p${i}`];
-                            teachersForPeriod.push({ name: teacher.name, link: teacher.link, time: periodTime });
+                            teachersForPeriod.push({ name: teacher.name, link: teacher.link, time: periodTime, subject: subjectName });
                         }
                     }
                 });
@@ -350,11 +395,12 @@
                 if (teachersForPeriod.length > 0) {
                     foundAny = true;
                     teachersForPeriod.forEach(t => {
+                        const subDisplay = t.subject ? `<div class="text-[10px] text-gold-600 font-normal font-arabic">${t.subject}</div>` : '';
                         tableBody.innerHTML += `
                             <tr class="border-b border-islamic-100">
                                 <td class="px-3 py-2 text-center text-xs font-bold text-gold-700 bg-gold-50/50">${i} ချိန်</td>
                                 <td class="px-3 py-2 text-center text-[11px] font-semibold text-islamic-700 bg-islamic-50/30">${t.time}</td>
-                                <td class="px-3 py-2 text-xs font-bold text-islamic-900">${t.name}</td>
+                                <td class="px-3 py-2 text-xs font-bold text-islamic-900">${t.name} ${subDisplay}</td>
                                 <td class="px-3 py-2 text-xs text-center"><a href="${t.link}" target="_blank" class="px-2.5 py-1 bg-islamic-600 text-white rounded-lg text-[11px] font-semibold hover:bg-islamic-700">Join</a></td>
                             </tr>`;
                     });
@@ -367,7 +413,7 @@
             resultBox.classList.remove('hidden');
         };
 
-        // Class-Wise Master Weekly Timetable (Periods Horizontal, Days Vertical)
+        // Class-Wise Master Weekly Timetable
         window.renderMasterWeeklyTimetable = function() {
             const grade = document.getElementById('masterGradeSelect').value;
             const section = document.getElementById('masterSectionSelect').value;
@@ -384,7 +430,6 @@
             const secLabel = (section && section !== '-') ? ` (${section})` : '';
             titleEl.innerText = `${grade}${secLabel} - တစ်ပတ်စာ အချိန်ဇယား`;
 
-            // Table Header: Periods 1 to 8 Horizontal
             let headHTML = `<tr class="bg-islamic-600 text-white text-[11px]">
                 <th class="p-2.5 text-center font-bold w-28 border-r border-islamic-700">နေ့ရက်</th>`;
             for (let i = 1; i <= 8; i++) {
@@ -395,7 +440,6 @@
 
             tableBody.innerHTML = '';
 
-            // Table Body: Days Vertical
             daysList.forEach(d => {
                 const isToday = d.id === todayId;
                 const rowBg = isToday ? 'bg-gold-50/90 font-bold border-y-2 border-gold-300' : 'bg-white hover:bg-islamic-50/30';
@@ -405,23 +449,30 @@
                 rowHTML += `<td class="p-2.5 text-center text-xs border-r border-islamic-100 ${dayLabelBg}">${isToday ? '<i class="fa-solid fa-star text-[9px] mr-1"></i>' : ''}${d.label}${isToday ? ' (ယနေ့)' : ''}</td>`;
 
                 for (let i = 1; i <= 8; i++) {
-                    let cellTeachers = [];
+                    let cellItems = [];
                     Object.keys(meetingsData).forEach(key => {
                         const teacher = meetingsData[key];
                         const sched = teacher.weeklySchedule ? teacher.weeklySchedule[d.id] : null;
                         if (sched && sched[`p${i}`]) {
                             const pVal = sched[`p${i}`];
                             let isMatch = false;
+                            let subName = '';
                             if (typeof pVal === 'string' && pVal === grade) isMatch = true;
                             else if (typeof pVal === 'object' && pVal.grade === grade) {
-                                if (!section || section === '-' || pVal.section === section || pVal.section === '-') isMatch = true;
+                                if (!section || section === '-' || pVal.section === section || pVal.section === '-') {
+                                    isMatch = true;
+                                    subName = pVal.subject || '';
+                                }
                             }
-                            if (isMatch) cellTeachers.push(teacher.name);
+                            if (isMatch) {
+                                const subStr = subName ? ` <span class="text-[10px] text-gold-700 font-arabic">(${subName})</span>` : '';
+                                cellItems.push(`${teacher.name}${subStr}`);
+                            }
                         }
                     });
 
-                    if (cellTeachers.length > 0) {
-                        rowHTML += `<td class="p-2 text-center text-xs font-semibold text-islamic-900 border-r border-islamic-100">${cellTeachers.join(', ')}</td>`;
+                    if (cellItems.length > 0) {
+                        rowHTML += `<td class="p-2 text-center text-xs font-semibold text-islamic-900 border-r border-islamic-100">${cellItems.join('<br>')}</td>`;
                     } else {
                         rowHTML += `<td class="p-2 text-center text-[11px] text-gray-300 italic border-r border-islamic-100">-</td>`;
                     }
@@ -432,7 +483,7 @@
             });
         };
 
-        // Teacher-Wise Weekly Timetable (Periods Horizontal, Days Vertical)
+        // Teacher-Wise Weekly Timetable
         window.renderTeacherWeeklyTimetable = function() {
             const teacherKey = document.getElementById('teacherWeeklySelect').value;
             const tableHead = document.getElementById('teacherTableHead');
@@ -450,7 +501,6 @@
             const todayId = getCurrentDayId();
             titleEl.innerText = `${teacher.name} (${teacher.idNum || 'N/A'}) - တစ်ပတ်စာ အချိန်ဇယား`;
 
-            // Table Header: Periods 1 to 8 Horizontal
             let headHTML = `<tr class="bg-islamic-600 text-white text-[11px]">
                 <th class="p-2.5 text-center font-bold w-28 border-r border-islamic-700">နေ့ရက်</th>`;
             for (let i = 1; i <= 8; i++) {
@@ -461,7 +511,6 @@
 
             tableBody.innerHTML = '';
 
-            // Table Body: Days Vertical
             daysList.forEach(d => {
                 const isToday = d.id === todayId;
                 const rowBg = isToday ? 'bg-gold-50/90 font-bold border-y-2 border-gold-300' : 'bg-white hover:bg-islamic-50/30';
@@ -504,9 +553,16 @@
         };
 
         window.tempSchedule = {};
+
         window.handleGradeChange = function(i) {
             const g = document.getElementById(`p${i}_grade`), c = document.getElementById(`p${i}_custom`);
             if (g.value === 'Other') c.classList.remove('hidden');
+            else { c.classList.add('hidden'); c.value = ''; }
+        };
+
+        window.handleSubjectChange = function(i) {
+            const s = document.getElementById(`p${i}_subject`), c = document.getElementById(`p${i}_sub_custom`);
+            if (s.value === 'Other') c.classList.remove('hidden');
             else { c.classList.add('hidden'); c.value = ''; }
         };
 
@@ -519,17 +575,33 @@
 
             const dayData = window.tempSchedule[dayId] || {};
             for (let i = 1; i <= 8; i++) {
-                const pVal = dayData[`p${i}`], g = document.getElementById(`p${i}_grade`), s = document.getElementById(`p${i}_sec`), c = document.getElementById(`p${i}_custom`), t = document.getElementById(`p${i}_time`);
+                const pVal = dayData[`p${i}`];
+                const g = document.getElementById(`p${i}_grade`);
+                const sec = document.getElementById(`p${i}_sec`);
+                const c = document.getElementById(`p${i}_custom`);
+                const t = document.getElementById(`p${i}_time`);
+                const sub = document.getElementById(`p${i}_subject`);
+                const subC = document.getElementById(`p${i}_sub_custom`);
+
                 if (!pVal) { 
-                    g.value = ''; s.value = '-'; c.value = ''; c.classList.add('hidden'); t.value = defaultTimes[`p${i}`];
+                    g.value = ''; sec.value = '-'; c.value = ''; c.classList.add('hidden'); 
+                    t.value = defaultTimes[`p${i}`];
+                    sub.value = ''; subC.value = ''; subC.classList.add('hidden');
                 } else if (typeof pVal === 'string') { 
-                    g.value = 'Other'; s.value = '-'; c.value = pVal; c.classList.remove('hidden'); t.value = defaultTimes[`p${i}`];
+                    g.value = 'Other'; sec.value = '-'; c.value = pVal; c.classList.remove('hidden'); 
+                    t.value = defaultTimes[`p${i}`];
+                    sub.value = ''; subC.value = ''; subC.classList.add('hidden');
                 } else {
                     g.value = pVal.isOther ? 'Other' : (pVal.grade || '');
-                    s.value = pVal.section || '-';
+                    sec.value = pVal.section || '-';
                     c.value = pVal.isOther ? (pVal.grade || '') : '';
                     t.value = pVal.time || defaultTimes[`p${i}`];
                     if (pVal.isOther) c.classList.remove('hidden'); else c.classList.add('hidden');
+
+                    const isSubOther = pVal.isSubOther || false;
+                    sub.value = isSubOther ? 'Other' : (pVal.subject || '');
+                    subC.value = isSubOther ? (pVal.subject || '') : '';
+                    if (isSubOther) subC.classList.remove('hidden'); else subC.classList.add('hidden');
                 }
             }
         };
@@ -541,14 +613,28 @@
             if (!window.tempSchedule[dayId]) window.tempSchedule[dayId] = {};
             for (let i = 1; i <= 8; i++) {
                 const g = document.getElementById(`p${i}_grade`).value;
-                const s = document.getElementById(`p${i}_sec`).value;
+                const sec = document.getElementById(`p${i}_sec`).value;
                 const c = document.getElementById(`p${i}_custom`).value.trim();
                 const t = document.getElementById(`p${i}_time`).value.trim();
+                
+                const subSel = document.getElementById(`p${i}_subject`).value;
+                const subC = document.getElementById(`p${i}_sub_custom`).value.trim();
+
+                let finalSubject = subSel;
+                let isSubOther = false;
+                if (subSel === 'Other' && subC) {
+                    finalSubject = subC;
+                    isSubOther = true;
+                    // Auto push to Firebase subjects
+                    if (!getAllSubjects().includes(subC)) {
+                        push(subjectsRef, subC);
+                    }
+                }
 
                 if (g === 'Other' && c) {
-                    window.tempSchedule[dayId][`p${i}`] = { grade: c, section: s, isOther: true, time: t };
+                    window.tempSchedule[dayId][`p${i}`] = { grade: c, section: sec, isOther: true, time: t, subject: finalSubject, isSubOther };
                 } else if (g && g !== 'Other') {
-                    window.tempSchedule[dayId][`p${i}`] = { grade: g, section: s, time: t };
+                    window.tempSchedule[dayId][`p${i}`] = { grade: g, section: sec, time: t, subject: finalSubject, isSubOther };
                 } else {
                     delete window.tempSchedule[dayId][`p${i}`];
                 }
@@ -560,10 +646,14 @@
             if (typeof pData === 'string') return pData;
             if (typeof pData === 'object') {
                 if (!pData.grade) return '';
+                let result = pData.grade;
                 if (pData.section && pData.section !== '-') {
-                    return `${pData.grade} (${pData.section})`;
+                    result += ` (${pData.section})`;
                 }
-                return pData.grade;
+                if (pData.subject) {
+                    result += ` [${pData.subject}]`;
+                }
+                return result;
             }
             return '';
         }
@@ -593,6 +683,7 @@
             document.getElementById('meetingId').value = item.idNum || '';
             document.getElementById('teacherPhone').value = item.phone || '';
             window.tempSchedule = JSON.parse(JSON.stringify(item.weeklySchedule || {}));
+            updateSubjectDropdowns();
             window.loadDayToInputs(getCurrentDayId());
             window.toggleModal(true);
         };
@@ -609,6 +700,7 @@
 
             document.getElementById('teacherPhone').value = '';
             window.tempSchedule = {};
+            updateSubjectDropdowns();
             window.loadDayToInputs(getCurrentDayId());
             window.toggleModal(true);
         };
@@ -712,7 +804,7 @@
                                 <tr class="bg-islamic-600 text-white text-[11px]">
                                     <th class="px-3 py-2 text-center font-bold">အချိန်</th>
                                     <th class="px-3 py-2 text-center font-bold">စာသင်ချိန် နာရီ</th>
-                                    <th class="px-3 py-2 font-bold">ဆရာ</th>
+                                    <th class="px-3 py-2 font-bold">ဆရာနှင့် ဘာသာရပ်</th>
                                     <th class="px-3 py-2 text-center font-bold">လင့်ခ်</th>
                                 </tr>
                             </thead>
@@ -879,18 +971,18 @@
                         <button id="tab-wed" onclick="switchModalDay('wed')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ဗုဒ္ဓဟူး</button>
                         <button id="tab-thu" onclick="switchModalDay('thu')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ကြာသပတေး</button>
                     </div>
-                    <div class="space-y-2 max-h-[240px] overflow-y-auto">
+                    <div class="space-y-2 max-h-[260px] overflow-y-auto">
                         <script>
                             for (let i = 1; i <= 8; i++) {
                                 document.write(`
-                                    <div class="bg-gray-50 p-2 rounded-xl border border-islamic-100">
-                                        <div class="flex items-center justify-between mb-1">
+                                    <div class="bg-gray-50 p-2.5 rounded-xl border border-islamic-100 space-y-1.5">
+                                        <div class="flex items-center justify-between">
                                             <span class="text-[10px] font-bold text-islamic-700">${i} ချိန်မြောက်</span>
                                             <input type="text" id="p${i}_time" class="p-1 border border-islamic-200 rounded-lg text-[10px] w-36 text-center font-semibold text-islamic-800" placeholder="07:30 AM - 08:10 AM">
                                         </div>
                                         <div class="grid grid-cols-5 gap-1.5">
                                             <select id="p${i}_grade" onchange="handleGradeChange(${i})" class="col-span-3 p-1.5 border border-islamic-200 rounded-lg text-xs">
-                                                <option value="">- မရှိ -</option>
+                                                <option value="">- အတန်း မရှိ -</option>
                                                 <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
                                                 <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
                                                 <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
@@ -900,7 +992,15 @@
                                                 <option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
                                             </select>
                                         </div>
-                                        <input type="text" id="p${i}_custom" placeholder="အခြားအတန်း ရိုက်ပါ..." class="hidden w-full mt-1 p-1 border border-islamic-200 rounded-lg text-xs">
+                                        <input type="text" id="p${i}_custom" placeholder="အခြားအတန်း ရိုက်ပါ..." class="hidden w-full p-1 border border-islamic-200 rounded-lg text-xs">
+                                        
+                                        <!-- Subject Selection Section -->
+                                        <div>
+                                            <select id="p${i}_subject" onchange="handleSubjectChange(${i})" class="w-full p-1.5 border border-islamic-200 rounded-lg text-xs font-arabic text-islamic-800">
+                                                <option value="">- ဘာသာရပ် မရှိ -</option>
+                                            </select>
+                                            <input type="text" id="p${i}_sub_custom" placeholder="ဘာသာရပ်အသစ် ရိုက်ထည့်ပါ..." class="hidden w-full mt-1 p-1 border border-islamic-200 rounded-lg text-xs font-arabic">
+                                        </div>
                                     </div>
                                 `);
                             }
@@ -924,7 +1024,7 @@
                     const urlsToCache = [
                         'https://cdn.tailwindcss.com',
                         'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-                        'https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap'
+                        'https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap'
                     ];
                     self.addEventListener('install', event => {
                         event.waitUntil(
