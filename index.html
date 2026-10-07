@@ -176,8 +176,13 @@
             { id: 'mon', label: 'တနင်္လာ' },
             { id: 'tue', label: 'အင်္ဂါ' },
             { id: 'wed', label: 'ဗုဒ္ဓဟူး' },
-            { id: 'thu', label: 'ကြာသပတေး' }
+            { id: 'thu', label: 'ကြာသ' }
         ];
+
+        window.formatClassName = function(str) {
+            if (!str) return '';
+            return str.replace(/Grade-/g, 'G-');
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             const daySelect = document.getElementById('filterDaySelect');
@@ -310,13 +315,6 @@
             window.scrollTo(0, 0);
         };
 
-        window.handleSearch = function() {
-            const homeSearch = document.getElementById('homeSearchInput').value;
-            document.getElementById('teacherSearchInput').value = homeSearch;
-            window.navigateTo('teachers');
-            renderMeetings();
-        };
-
         window.renderMeetings = function() {
             const container = document.getElementById('meetingContainer');
             if (!container) return;
@@ -373,21 +371,22 @@
         };
 
         window.searchClassSchedule = function() {
-            const grade = document.getElementById('filterGradeSelect').value;
+            const rawGrade = document.getElementById('filterGradeSelect').value;
             const section = document.getElementById('filterSectionSelect').value;
             const day = document.getElementById('filterDaySelect').value;
             const resultBox = document.getElementById('classTimetableResult');
             const tableBody = document.getElementById('classTimetableBody');
             const resultTitle = document.getElementById('classTimetableTitle');
 
-            if (!grade) {
-                alert("ကျေးဇူးပြု၍ အတန်း ရွေးချယ်ပါ။");
+            if (!rawGrade) {
+                resultBox.classList.add('hidden');
                 return;
             }
 
+            const grade = rawGrade;
             const dayObj = daysList.find(d => d.id === day);
             const secLabel = (section && section !== '-') ? ` (${section})` : '';
-            resultTitle.innerText = `${grade}${secLabel} - ${dayObj ? dayObj.label : ''}နေ့ အချိန်ဇယား`;
+            resultTitle.innerText = `${formatClassName(grade)}${secLabel} - ${dayObj ? dayObj.label : ''}နေ့ အချိန်ဇယား`;
             tableBody.innerHTML = '';
             let foundAny = false;
 
@@ -438,22 +437,24 @@
             resultBox.classList.remove('hidden');
         };
 
-        // Class-Wise Master Weekly Timetable (Strict Fit Table)
+        // Class-Wise Master Weekly Timetable
         window.renderMasterWeeklyTimetable = function() {
-            const grade = document.getElementById('masterGradeSelect').value;
+            const rawGrade = document.getElementById('masterGradeSelect').value;
             const section = document.getElementById('masterSectionSelect').value;
             const tableHead = document.getElementById('masterTableHead');
             const tableBody = document.getElementById('masterTableBody');
             const titleEl = document.getElementById('masterTitle');
 
-            if (!grade) {
-                alert("ကျေးဇူးပြု၍ အတန်း ရွေးချယ်ပါ။");
+            if (!rawGrade) {
+                titleEl.innerText = "အတန်း ရွေးချယ်ပြီး တစ်ပတ်စာ အချိန်ဇယား ကြည့်ပါ";
+                tableBody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-xs text-islamic-500 italic">အတန်း ရွေးချယ်ပြီး အချိန်ဇယား ထုတ်ကြည့်ပါ</td></tr>`;
                 return;
             }
 
+            const grade = rawGrade;
             const todayId = getCurrentDayId();
             const secLabel = (section && section !== '-') ? ` (${section})` : '';
-            titleEl.innerText = `${grade}${secLabel} - တစ်ပတ်စာ အချိန်ဇယား`;
+            titleEl.innerText = `${formatClassName(grade)}${secLabel} - တစ်ပတ်စာ အချိန်ဇယား`;
 
             let headHTML = `<tr class="bg-islamic-600 text-white text-[10px]">
                 <th class="p-1.5 text-center font-bold w-[12%] border-r border-islamic-700">နေ့ရက်</th>`;
@@ -508,7 +509,7 @@
             });
         };
 
-        // Teacher-Wise Weekly Timetable (Strict Fit Table)
+        // Teacher-Wise Weekly Timetable
         window.renderTeacherWeeklyTimetable = function() {
             const teacherKey = document.getElementById('teacherWeeklySelect').value;
             const tableHead = document.getElementById('teacherTableHead');
@@ -516,7 +517,8 @@
             const titleEl = document.getElementById('teacherTitle');
 
             if (!teacherKey) {
-                alert("ကျေးဇူးပြု၍ ဆရာ/ဆရာမ ရွေးချယ်ပါ။");
+                titleEl.innerText = "ဆရာ ရွေးချယ်ပြီး တစ်ပတ်စာ အချိန်ဇယား ကြည့်ပါ";
+                tableBody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-xs text-islamic-500 italic">ဆရာ/ဆရာမ ရွေးချယ်ပြီး အချိန်ဇယား ထုတ်ကြည့်ပါ</td></tr>`;
                 return;
             }
 
@@ -667,10 +669,10 @@
 
         function formatPeriodText(pData) {
             if (!pData) return '';
-            if (typeof pData === 'string') return pData;
+            if (typeof pData === 'string') return formatClassName(pData);
             if (typeof pData === 'object') {
                 if (!pData.grade) return '';
-                let result = pData.grade;
+                let result = formatClassName(pData.grade);
                 if (pData.section && pData.section !== '-') {
                     result += ` (${pData.section})`;
                 }
@@ -751,22 +753,13 @@
                 <button onclick="openAddModal()" class="px-3 py-2 bg-gold-500 hover:bg-gold-600 text-white rounded-xl text-xs font-semibold shadow-sm btn-glow">+ အသစ်ထည့်ရန်</button>
             </div>
 
-            <!-- Announcement Container -->
-            <div class="bg-gradient-to-br from-white to-gold-50/50 rounded-2xl p-4 border border-gold-200/80">
+            <!-- ကျောင်းကြေညာချက် အကွက် -->
+            <div class="w-full bg-gradient-to-br from-white to-gold-50/50 rounded-2xl p-4 border border-gold-200/80 shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-bold text-gold-700"><i class="fa-solid fa-bullhorn text-gold-500 mr-1"></i>ကျောင်းကြေညာချက်</span>
                     <button onclick="openAnnouncementModal()" class="text-[11px] text-gold-600 hover:underline font-medium"><i class="fa-solid fa-pen-to-square"></i> ပြင်ရန်</button>
                 </div>
                 <p id="announcementText" class="text-xs text-islamic-900 bg-white/60 p-3 rounded-xl border border-gold-100/80">ကြေညာချက် ရယူနေပါသည်...</p>
-            </div>
-
-            <!-- Class & Teacher Search Bar -->
-            <div class="bg-white/95 p-4 rounded-2xl border border-islamic-100 shadow-sm">
-                <label class="block text-xs font-bold text-islamic-700 mb-2"><i class="fa-solid fa-magnifying-glass text-gold-500 mr-1"></i> အတန်း/ဆရာ ရှာဖွေရန်</label>
-                <div class="flex gap-2">
-                    <input type="text" id="homeSearchInput" onkeypress="if(event.key==='Enter') handleSearch()" placeholder="ဆရာအမည် သို့မဟုတ် အတန်း..." class="flex-1 p-2 border border-islamic-200 rounded-xl text-xs focus:outline-none focus:border-islamic-500">
-                    <button onclick="handleSearch()" class="px-4 py-2 bg-islamic-600 hover:bg-islamic-700 text-white rounded-xl text-xs font-semibold">ရှာမည်</button>
-                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2 my-2">
@@ -788,34 +781,33 @@
 
             <div class="ornament-divider my-4"></div>
 
-            <!-- Daily Schedule Search Section -->
+            <!-- Daily Schedule Search Section (အလိုအလျောက် ပေါ်လာအောင် onchange ထည့်ထားသည်) -->
             <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3">
                 <h3 class="text-xs font-bold text-islamic-800 border-b border-islamic-100 pb-2"><i class="fa-solid fa-calendar-day text-gold-500 mr-1"></i> အတန်းလိုက် တစ်နေ့တာ အချိန်ဇယား</h3>
                 <div class="grid grid-cols-12 gap-2">
                     <div class="col-span-4">
                         <label class="block text-[10px] font-bold text-islamic-700 mb-1">အတန်း</label>
-                        <select id="filterGradeSelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
+                        <select id="filterGradeSelect" onchange="searchClassSchedule()" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
                             <option value="">- ရွေးပါ -</option>
-                            <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
-                            <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
-                            <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
+                            <option value="Grade-1">G-1</option><option value="Grade-2">G-2</option><option value="Grade-3">G-3</option>
+                            <option value="Grade-4">G-4</option><option value="Grade-5">G-5</option><option value="Grade-6">G-6</option>
+                            <option value="Grade-7">G-7</option><option value="Grade-8">G-8</option><option value="Grade-9">G-9</option>
                         </select>
                     </div>
                     <div class="col-span-3">
                         <label class="block text-[10px] font-bold text-islamic-700 mb-1">တန်းခွဲ</label>
-                        <select id="filterSectionSelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs text-center font-semibold">
+                        <select id="filterSectionSelect" onchange="searchClassSchedule()" class="w-full p-2 border border-islamic-200 rounded-xl text-xs text-center font-semibold">
                             <option value="">အားလုံး</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
                         </select>
                     </div>
                     <div class="col-span-5">
                         <label class="block text-[10px] font-bold text-islamic-700 mb-1">နေ့ရက်</label>
-                        <select id="filterDaySelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
+                        <select id="filterDaySelect" onchange="searchClassSchedule()" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
                             <option value="sat">စနေ</option><option value="sun">တနင်္ဂနွေ</option><option value="mon">တနင်္လာ</option>
-                            <option value="tue">အင်္ဂါ</option><option value="wed">ဗုဒ္ဓဟူး</option><option value="thu">ကြာသပတေး</option>
+                            <option value="tue">အင်္ဂါ</option><option value="wed">ဗုဒ္ဓဟူး</option><option value="thu">ကြာသ</option>
                         </select>
                     </div>
                 </div>
-                <button onclick="searchClassSchedule()" class="w-full py-2 bg-gold-500 hover:bg-gold-600 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-clock mr-1"></i> အချိန်ဇယား ကြည့်မည်</button>
 
                 <div id="classTimetableResult" class="hidden mt-3 pt-3 border-t border-islamic-100">
                     <h4 id="classTimetableTitle" class="text-xs font-bold text-islamic-800 mb-2"></h4>
@@ -836,7 +828,7 @@
             </div>
         </div>
 
-        <!-- Class-Wise Master Weekly View Page -->
+        <!-- Class-Wise Master Weekly View Page (အလိုအလျောက် ပေါ်လာအောင် onchange ထည့်ထားသည်) -->
         <div id="masterPage" class="space-y-4 hidden">
             <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between no-print">
                 <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200 hover:bg-islamic-100"><i class="fa-solid fa-arrow-left"></i></button>
@@ -848,24 +840,23 @@
                 <div class="grid grid-cols-12 gap-2">
                     <div class="col-span-6">
                         <label class="block text-[10px] font-bold text-islamic-700 mb-1">အတန်း ရွေးပါ</label>
-                        <select id="masterGradeSelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
+                        <select id="masterGradeSelect" onchange="renderMasterWeeklyTimetable()" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
                             <option value="">- ရွေးပါ -</option>
-                            <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
-                            <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
-                            <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
+                            <option value="Grade-1">G-1</option><option value="Grade-2">G-2</option><option value="Grade-3">G-3</option>
+                            <option value="Grade-4">G-4</option><option value="Grade-5">G-5</option><option value="Grade-6">G-6</option>
+                            <option value="Grade-7">G-7</option><option value="Grade-8">G-8</option><option value="Grade-9">G-9</option>
                         </select>
                     </div>
                     <div class="col-span-6">
                         <label class="block text-[10px] font-bold text-islamic-700 mb-1">တန်းခွဲ</label>
-                        <select id="masterSectionSelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs font-semibold">
+                        <select id="masterSectionSelect" onchange="renderMasterWeeklyTimetable()" class="w-full p-2 border border-islamic-200 rounded-xl text-xs font-semibold">
                             <option value="">အားလုံး</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
                         </select>
                     </div>
                 </div>
-                <button onclick="renderMasterWeeklyTimetable()" class="w-full py-2 bg-islamic-600 hover:bg-islamic-700 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-table mr-1"></i> တစ်ပတ်စာ အချိန်ဇယား ထုတ်ကြည့်မည်</button>
             </div>
 
-            <!-- Print Area Table (Fixed Table Layout for Perfect A4 Landscape Fit) -->
+            <!-- Print Area Table -->
             <div class="bg-white rounded-2xl p-3 border border-islamic-100 shadow-sm print-area">
                 <div class="text-center mb-2">
                     <h2 class="text-sm font-bold text-islamic-900">Al-Kausar Classes</h2>
@@ -896,7 +887,7 @@
             </div>
         </div>
 
-        <!-- Teacher-Wise Weekly View Page -->
+        <!-- Teacher-Wise Weekly View Page (အလိုအလျောက် ပေါ်လာအောင် onchange ထည့်ထားသည်) -->
         <div id="teacherWeeklyPage" class="space-y-4 hidden">
             <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 flex items-center justify-between no-print">
                 <button onclick="navigateTo('home')" class="px-3 py-1.5 bg-islamic-50 text-islamic-700 rounded-xl text-xs font-bold border border-islamic-200 hover:bg-islamic-100"><i class="fa-solid fa-arrow-left"></i></button>
@@ -907,14 +898,13 @@
             <div class="bg-white/95 rounded-2xl p-4 shadow-sm border border-islamic-100 space-y-3 no-print">
                 <div>
                     <label class="block text-[10px] font-bold text-islamic-700 mb-1">ဆရာ/ဆရာမ ရွေးပါ</label>
-                    <select id="teacherWeeklySelect" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
+                    <select id="teacherWeeklySelect" onchange="renderTeacherWeeklyTimetable()" class="w-full p-2 border border-islamic-200 rounded-xl text-xs">
                         <option value="">- ရွေးပါ -</option>
                     </select>
                 </div>
-                <button onclick="renderTeacherWeeklyTimetable()" class="w-full py-2 bg-islamic-600 hover:bg-islamic-700 text-white rounded-xl text-xs font-bold"><i class="fa-solid fa-table mr-1"></i> တစ်ပတ်စာ အချိန်ဇယား ထုတ်ကြည့်မည်</button>
             </div>
 
-            <!-- Print Area Table (Fixed Table Layout for Perfect A4 Landscape Fit) -->
+            <!-- Print Area Table -->
             <div class="bg-white rounded-2xl p-3 border border-islamic-100 shadow-sm print-area">
                 <div class="text-center mb-2">
                     <h2 class="text-sm font-bold text-islamic-900">Al-Kausar Classes</h2>
@@ -991,7 +981,7 @@
                         <button id="tab-mon" onclick="switchModalDay('mon')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">တနင်္လာ</button>
                         <button id="tab-tue" onclick="switchModalDay('tue')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">အင်္ဂါ</button>
                         <button id="tab-wed" onclick="switchModalDay('wed')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ဗုဒ္ဓဟူး</button>
-                        <button id="tab-thu" onclick="switchModalDay('thu')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ကြာသပတေး</button>
+                        <button id="tab-thu" onclick="switchModalDay('thu')" class="px-3 py-1 bg-white text-islamic-700 rounded-xl text-xs border border-islamic-200">ကြာသ</button>
                     </div>
                     <div class="space-y-2 max-h-[260px] overflow-y-auto">
                         <script>
@@ -1005,9 +995,9 @@
                                         <div class="grid grid-cols-5 gap-1.5">
                                             <select id="p${i}_grade" onchange="handleGradeChange(${i})" class="col-span-3 p-1.5 border border-islamic-200 rounded-lg text-xs">
                                                 <option value="">- အတန်း မရှိ -</option>
-                                                <option value="Grade-1">Grade-1</option><option value="Grade-2">Grade-2</option><option value="Grade-3">Grade-3</option>
-                                                <option value="Grade-4">Grade-4</option><option value="Grade-5">Grade-5</option><option value="Grade-6">Grade-6</option>
-                                                <option value="Grade-7">Grade-7</option><option value="Grade-8">Grade-8</option><option value="Grade-9">Grade-9</option>
+                                                <option value="Grade-1">G-1</option><option value="Grade-2">G-2</option><option value="Grade-3">G-3</option>
+                                                <option value="Grade-4">G-4</option><option value="Grade-5">G-5</option><option value="Grade-6">G-6</option>
+                                                <option value="Grade-7">G-7</option><option value="Grade-8">G-8</option><option value="Grade-9">G-9</option>
                                                 <option value="Other">Other</option>
                                             </select>
                                             <select id="p${i}_sec" class="col-span-2 p-1.5 border border-islamic-200 rounded-lg text-xs font-bold text-center">
